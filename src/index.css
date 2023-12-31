@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .input-style {
+    @apply border-2 border-secondaryColor transition-all ease-in-out duration-500 border-solid hover:border-secondaryColorHover bg-secondaryColor p-2 outline-none rounded-md font-semibold text-primaryColor;
+  }
+}

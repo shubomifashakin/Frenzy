@@ -16,10 +16,10 @@ export default {
       },
 
       colors: {
-        primaryBg: "#f3f9d2",
-        secondaryColor: "#13293d",
-        primaryTextColor: "#f46036",
-        primaryTxt: "#2f2f2f",
+        primaryColor: "#f3f9d2",
+        secondaryColor: "#f46036",
+        secondaryColorHover: "#FDBA74",
+        tertiaryColor: "#2f2f2f",
       },
     },
   },
