@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import SignInPage from "./Pages/SignInPage";
-import AppLayout from "./Reusables/AppLayout";
+import AppLayout from "./Components/AppLayout";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import TimelinePage from "./Pages/TimelinePage";
 import ProfilePage from "./Pages/ProfilePage";

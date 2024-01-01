@@ -1,9 +1,32 @@
+import { useQuery } from "@tanstack/react-query";
+import { useStore } from "zustand";
+import { PostStore } from "../Stores/PostStore";
+import { useParams } from "react-router-dom";
+
 function TimelinePage() {
+  const getPosts = PostStore(function (state) {
+    return state.getPosts;
+  });
+  const { userId } = useParams();
+
+  const { status, data, error } = useQuery({
+    queryKey: ["posts"],
+    queryFn: () => getPosts(userId),
+  });
+
   return (
-    <div>
-      <h2>Timeline</h2>
+    <div className="m-auto w-[80%] pt-5 lg:w-1/2">
+      {status === "pending" ? <p>Loading</p> : null}
+      {status === "success"
+        ? data.map((post, i) => <Post key={i} info={post} />)
+        : null}
+      {status === "error" ? <p>{error.message}</p> : null}
     </div>
   );
+}
+
+function Post({ info }) {
+  return <p>{info.content}</p>;
 }
 
 export default TimelinePage;

@@ -3,15 +3,16 @@ import { useForm } from "react-hook-form";
 import { supabase } from "../Helpers/supabase";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { CheckBox } from "../Reusables/CheckBox";
+import { CheckBox } from "../Components/CheckBox";
+import InputError from "../Components/InputError";
 
 function SignInPage() {
   const [checked, setChecked] = useState(false);
 
   return (
-    <div className="h-dvh px-8 py-2 md:px-9 md:py-[2rem] bg-primaryColor">
-      <div className="flex flex-col items-center justify-center gap-5 h-full">
-        <p className="animate-flash flex items-center font-semibold text-tertiaryColor">
+    <div className="h-dvh bg-primaryColor px-8 py-2 md:px-9 md:py-[2rem]">
+      <div className="flex h-full flex-col items-center justify-center gap-5">
+        <p className="flex animate-flash items-center font-semibold text-tertiaryColor">
           <CheckBox checked={checked} setChecked={setChecked} />
           &nbsp;&nbsp;
           {checked ? "Log In" : "Sign Up"}
@@ -54,7 +55,7 @@ function LogIn() {
   }
 
   return (
-    <div className="animate-flash w-full md:w-1/2 min-h-[350px] md:min-h-[400px] ">
+    <div className="min-h-[350px] w-full animate-flash md:min-h-[400px] md:w-1/2 ">
       <Header>Log In</Header>
       <form onSubmit={handleSubmit(handleLogIn)}>
         <InputGroup label={"Email"} errors={errors?.email?.message}>
@@ -114,10 +115,10 @@ function SignUp() {
   }
 
   return (
-    <div className="animate-flash w-full md:w-1/2 min-h-[350px] md:min-h-[400px] ">
+    <div className="min-h-[350px] w-full animate-flash md:min-h-[400px] md:w-1/2 ">
       <Header>Sign Up</Header>
 
-      <form className="gap-4 w-full " onSubmit={handleSubmit(handleSignUp)}>
+      <form className="w-full gap-4 " onSubmit={handleSubmit(handleSignUp)}>
         <InputGroup label={"Username"} errors={errors?.username?.message}>
           <input
             type="text"
@@ -151,7 +152,7 @@ function SignUp() {
           />
         </InputGroup>
 
-        <div className="flex-cols md:flex justify-between items-center">
+        <div className="flex-cols items-center justify-between md:flex">
           <InputGroup label={"Password"} errors={errors?.password?.message}>
             <input
               className="input-style"
@@ -205,19 +206,23 @@ export default SignInPage;
 
 function InputGroup({ label, children, errors }) {
   return (
-    <div className="flex flex-col mb-4 ">
-      <label className="font-semibold text-tertiaryColor mb-2">{label}</label>
-      {errors ? (
-        <p className="text-xs font-medium text-red-500">{errors}</p>
-      ) : null}
+    <div className="mb-4 flex flex-col ">
+      <label className="mb-2 font-semibold text-tertiaryColor">{label}</label>
+      {errors ? <InputError>{errors}</InputError> : null}
       {children}
     </div>
   );
 }
 
-function Button({ children }) {
+export function Button({ children, size = "medium" }) {
   return (
-    <button className="bg-secondaryColor duration-500 transition-all ease-in-out hover:text-orange-300 text-primaryColor font-semibold rounded-md p-3 border-secondaryColor hover:border-secondaryColorHover border-2">
+    <button
+      className={`rounded-md border-2 border-secondaryColor bg-secondaryColor ${
+        size === "medium" ? "p-3" : ""
+      } ${
+        size === "small" ? "px-3 py-1" : ""
+      } font-semibold text-primaryColor transition-all duration-500 ease-in-out hover:border-secondaryColorHover hover:text-orange-300`}
+    >
       {children}
     </button>
   );
@@ -225,7 +230,7 @@ function Button({ children }) {
 
 function Header({ children }) {
   return (
-    <h2 className="text-3xl mb-4 font-extrabold  text-headerTxt ">
+    <h2 className="text-headerTxt mb-4 text-3xl  font-extrabold ">
       {children}
     </h2>
   );
