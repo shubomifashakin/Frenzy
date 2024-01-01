@@ -217,11 +217,11 @@ function InputGroup({ label, children, errors }) {
 export function Button({ children, size = "medium" }) {
   return (
     <button
-      className={`rounded-md border-2 border-secondaryColor bg-secondaryColor ${
+      className={`rounded-md  bg-secondaryColor ${
         size === "medium" ? "p-3" : ""
       } ${
         size === "small" ? "px-3 py-1" : ""
-      } font-semibold text-primaryColor transition-all duration-500 ease-in-out hover:border-secondaryColorHover hover:text-orange-300`}
+      }  border font-semibold text-primaryColor ring  ring-secondaryColor ring-offset-2 transition-all duration-500 ease-in-out hover:border-black  hover:bg-secondaryColorHover hover:text-tertiaryColor hover:ring-offset-4 focus:scale-[0.9] focus:ring-2 focus:ring-secondaryColorHover focus:ring-offset-2 `}
     >
       {children}
     </button>

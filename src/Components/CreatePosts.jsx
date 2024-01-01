@@ -14,6 +14,7 @@ function CreatePosts({ isCreatePost, toggleCreatePost }) {
   //get the user id from the url
   const { userId } = useParams();
 
+  //gets the function to upload the post from the post store
   const uploadPost = PostStore(function (state) {
     return state.uploadPost;
   });
@@ -26,7 +27,7 @@ function CreatePosts({ isCreatePost, toggleCreatePost }) {
   const { mutate } = useMutation({
     mutationFn: uploadPost,
     onSuccess: function () {
-      toast.success("Posted");
+      toast.success("Post Was Sent");
       queryClient.invalidateQueries("posts");
 
       //remove the file
@@ -45,10 +46,12 @@ function CreatePosts({ isCreatePost, toggleCreatePost }) {
     },
   });
 
+  //when the escape key is pressed close the create post element
   function HandleEscape(e) {
     if (e?.key === "Escape") toggleCreatePost(false);
   }
 
+  //when we submit the form, react-hook-form provides us with the post content since we registered it, but we manually get the file
   function submitPost(postInfo) {
     //if no image was added, uploaded the post content and userId like that
     if (!file) {
@@ -78,32 +81,40 @@ function CreatePosts({ isCreatePost, toggleCreatePost }) {
 
   return (
     <div
-      onClick={(e) => e.stopPropagation()}
-      onKeyDown={HandleEscape}
-      className={`absolute left-1/2 top-1/2 w-4/5 translate-x-[-50%] translate-y-[-50%] rounded-md text-xl font-bold text-primaryColor lg:w-1/2  ${
+      className={`animate-flash ease-in-out  ${
         isCreatePost ? "block" : "hidden"
-      } border-2 border-secondaryColor bg-primaryColor`}
+      } bg-transparentSecondary absolute flex h-full w-full items-center justify-center shadow-sm shadow-secondaryColor backdrop-blur-[2px]`}
     >
-      <h2 className="border-2 border-secondaryColor bg-secondaryColor p-3  text-lg outline-none">
-        New Post
-      </h2>
-
-      <form
-        onSubmit={handleSubmit(submitPost)}
-        className={`min-h-32 px-4 py-4 transition-all duration-500 ${
-          isDragging ? "bg-secondaryColorHover" : ""
-        }`}
+      <div
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={HandleEscape}
+        className={` w-4/5  rounded-md border-2 border-secondaryColor bg-primaryColor text-xl font-bold text-primaryColor lg:w-1/2`}
       >
-        <PostContentArea
-          register={register}
-          errors={errors?.postContent?.message}
-        />
-        <DropFile file={file} setFile={setFile} setIsDragging={setIsDragging} />
+        <h2 className="border-2 border-secondaryColor bg-secondaryColor p-3  text-lg outline-none">
+          New Post
+        </h2>
 
-        <div className="flex justify-end">
-          <Button size="small">Post</Button>
-        </div>
-      </form>
+        <form
+          onSubmit={handleSubmit(submitPost)}
+          className={`min-h-32 px-4 py-4 transition-all duration-500 ${
+            isDragging ? "bg-secondaryColorHover" : ""
+          }`}
+        >
+          <PostContentArea
+            register={register}
+            errors={errors?.postContent?.message}
+          />
+          <DropFile
+            file={file}
+            setFile={setFile}
+            setIsDragging={setIsDragging}
+          />
+
+          <div className="flex justify-end">
+            <Button size="small">Post</Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
@@ -130,10 +141,17 @@ function DropFile({ file, setFile, setIsDragging }) {
       file.type === "image/jpeg"
     ) {
       setFile(file);
+      //we dont set draggin to false, so that we can keep the dark orange background which tells the user that there is an image in the post
     } else {
-      toast.error("File is not supported, must be png,jpg or jpeg");
+      toast.error("File is not supported, Must be a png, jpg or jpeg");
       setIsDragging(false);
     }
+  }
+
+  //when the user double clicks on the drag container, the image would be discarded
+  function HanldeDiscardImage() {
+    setFile(null);
+    setIsDragging(false);
   }
 
   return (
@@ -142,10 +160,15 @@ function DropFile({ file, setFile, setIsDragging }) {
       onDragLeave={handleDragLeave}
       onDragEnter={handleDragEnter}
       onDrop={handleDrop}
-      className="mb-4 hidden rounded-lg bg-tertiaryColor px-5 py-7 lg:block"
+      onDoubleClick={HanldeDiscardImage}
+      className={`mb-4 hidden rounded-lg bg-tertiaryColor px-5 py-7 lg:block ${
+        file?.name ? "cursor-pointer" : ""
+      }`}
     >
       <p className="text-center text-sm text-primaryColor">
-        {file?.name || "Drag and drop files here or click to select files"}
+        {file?.name
+          ? ` ${file.name} (Double Click to Remove Image)`
+          : "Drag and Drop your image here "}
       </p>
     </div>
   );
@@ -156,12 +179,13 @@ function PostContentArea({ register, errors }) {
     <>
       <InputError>{errors}</InputError>
       <textarea
-        className="mb-4 block max-h-52 min-h-32 w-full resize-y overflow-y-auto bg-transparent text-base font-normal text-black outline-none"
+        placeholder="Tell your Frenzies something..."
+        className="mb-4 block max-h-52 min-h-32 w-full resize-y overflow-y-auto bg-transparent text-base font-semibold text-black outline-none"
         {...register("postContent", {
           required: { value: true, message: "Post cannot be empty" },
           maxLength: {
             value: 500,
-            message: "Post has exceeded 500 characters",
+            message: "A Post cannot exceed 500 characters",
           },
         })}
       />

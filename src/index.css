@@ -4,6 +4,6 @@
 
 @layer components {
   .input-style {
-    @apply border-2 border-secondaryColor transition-all ease-in-out duration-500 border-solid hover:border-secondaryColorHover bg-secondaryColor p-2 outline-none rounded-md font-semibold text-primaryColor;
+    @apply rounded-md border-2 border-solid border-secondaryColor bg-secondaryColor p-2 font-semibold text-primaryColor outline-none transition-all duration-500 ease-in-out hover:border-secondaryColorHover;
   }
 }

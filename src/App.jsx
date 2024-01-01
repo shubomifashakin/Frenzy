@@ -26,7 +26,7 @@ function App() {
         toastOptions={{
           success: {
             style: {
-              background: "green",
+              background: "#abf7b1",
             },
           },
           error: {

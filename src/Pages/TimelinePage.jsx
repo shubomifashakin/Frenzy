@@ -1,14 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
-import { useStore } from "zustand";
 import { PostStore } from "../Stores/PostStore";
 import { useParams } from "react-router-dom";
 
 function TimelinePage() {
+  //receives the function to getPosts from our postsStore
   const getPosts = PostStore(function (state) {
     return state.getPosts;
   });
+
+  //gets the userId from the url
   const { userId } = useParams();
 
+  //fetches our posts on mount
   const { status, data, error } = useQuery({
     queryKey: ["posts"],
     queryFn: () => getPosts(userId),

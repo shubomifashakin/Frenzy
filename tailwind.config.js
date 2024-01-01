@@ -20,6 +20,7 @@ export default {
         secondaryColor: "#f46036",
         secondaryColorHover: "#FDBA74",
         tertiaryColor: "#2f2f2f",
+        transparentSecondary: "#f45f36ab",
       },
     },
   },
