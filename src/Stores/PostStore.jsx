@@ -29,17 +29,22 @@ export const PostStore = create(function (set) {
 
     uploadPost: async function (postDetails) {
       const { image, postContent: content, userId } = postDetails;
+
       let postInfo;
       let compressedBlob;
+      let imageName;
 
       //if the user uploaded an image
       if (image) {
+        //create a unique image name
+        imageName = image.name.replaceAll(/[./?()]/gi, "") + Date.now();
+
         //compress the image, returns the compressed filed
         compressedBlob = await new Promise((resolve, reject) => {
           new Compressor(image, {
-            quality: 0.4, // Adjust the desired image quality (0.0 - 1.0)
+            quality: 1, // Adjust the desired image quality (0.0 - 1.0)
             maxWidth: 400, // Adjust the maximum width of the compressed image
-            maxHeight: 800, // Adjust the maximum height of the compressed image
+            maxHeight: 400, // Adjust the maximum height of the compressed image
             mimeType: "image/jpeg", // Specify the output image format
 
             success(result) {
@@ -54,7 +59,7 @@ export const PostStore = create(function (set) {
         });
 
         //if compression worked, form the link to the image in supabase storage
-        const imageUrl = `https://jmfwsnwrjdahhxvtvqgq.supabase.co/storage/v1/object/sign/postImages/${compressedBlob.name}`;
+        const imageUrl = `https://jmfwsnwrjdahhxvtvqgq.supabase.co/storage/v1/object/public/postImages/${imageName}`;
 
         //the post data we want to send to the database
         postInfo = { image: imageUrl, userId, content };
@@ -78,7 +83,7 @@ export const PostStore = create(function (set) {
       if (image) {
         const { error: imageError } = await supabase.storage
           .from("postImages")
-          .upload(compressedBlob.name, compressedBlob);
+          .upload(imageName, compressedBlob);
 
         //if there was an error uploading the image
         if (imageError) {

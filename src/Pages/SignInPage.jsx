@@ -47,9 +47,10 @@ function LogIn() {
       //get the id of the user
       const { id } = user;
 
-      //go to the logged page
+      //go to the timeline page
       navigate(`timeline/${id}`);
     } catch (error) {
+      //alert the user
       toast.error(error.message);
     }
   }
@@ -99,7 +100,7 @@ function SignUp() {
         error,
       } = await supabase.auth.signUp({ email, password });
 
-      //if there was an error loggin in show it
+      //if there was an error signing up show it
       if (error) {
         throw new Error(error.message);
       }
@@ -107,9 +108,10 @@ function SignUp() {
       //get the id of the user
       const { id } = user;
 
-      //go to the logged page
+      //go to the timeline page
       navigate(`timeline/${id}`);
     } catch (error) {
+      //alert the user
       toast.error(error.message);
     }
   }

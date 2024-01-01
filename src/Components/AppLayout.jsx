@@ -27,7 +27,7 @@ function AppLayout() {
       className="group relative h-dvh bg-primaryColor lg:grid lg:grid-rows-[0.35fr_3fr] 2xl:grid-rows-[0.2fr_2fr]"
     >
       <Navbar mobileNav={mobileNav} />
-      <main className=" h-full overflow-auto md:p-5 md:px-3">
+      <main className=" h-full overflow-auto bg-tertiaryColor md:p-5 md:px-3">
         <Outlet />
       </main>
 

@@ -83,7 +83,7 @@ function CreatePosts({ isCreatePost, toggleCreatePost }) {
     <div
       className={`animate-flash ease-in-out  ${
         isCreatePost ? "block" : "hidden"
-      } bg-transparentSecondary absolute left-0 top-0 flex h-full w-full items-center justify-center shadow-sm shadow-secondaryColor backdrop-blur-[2px]`}
+      } absolute left-0 top-0 flex h-full w-full items-center justify-center bg-transparentSecondary shadow-sm shadow-secondaryColor backdrop-blur-[2px]`}
     >
       <div
         onClick={(e) => e.stopPropagation()}
@@ -96,9 +96,7 @@ function CreatePosts({ isCreatePost, toggleCreatePost }) {
 
         <form
           onSubmit={handleSubmit(submitPost)}
-          className={`min-h-32 px-4 py-4 transition-all duration-500 ${
-            isDragging ? "bg-secondaryColorHover" : ""
-          }`}
+          className={`min-h-32 px-4 py-4 transition-all duration-500 `}
         >
           <PostContentArea
             register={register}
@@ -108,6 +106,7 @@ function CreatePosts({ isCreatePost, toggleCreatePost }) {
             file={file}
             setFile={setFile}
             setIsDragging={setIsDragging}
+            isDragging={isDragging}
           />
 
           <div className="flex justify-end">
@@ -119,7 +118,7 @@ function CreatePosts({ isCreatePost, toggleCreatePost }) {
   );
 }
 
-function DropFile({ file, setFile, setIsDragging }) {
+function DropFile({ file, setFile, setIsDragging, isDragging }) {
   function handleDragOver(e) {
     setIsDragging(true);
   }
@@ -161,11 +160,15 @@ function DropFile({ file, setFile, setIsDragging }) {
       onDragEnter={handleDragEnter}
       onDrop={handleDrop}
       onDoubleClick={HanldeDiscardImage}
-      className={`mb-4 hidden rounded-lg bg-tertiaryColor px-5 py-7 lg:block ${
-        file?.name ? "cursor-pointer" : ""
-      }`}
+      className={`mb-4 hidden rounded-lg transition-all duration-500  ${
+        isDragging ? "bg-secondaryColorHover" : "bg-tertiaryColor"
+      } px-5 py-7 lg:block ${file?.name ? "cursor-pointer" : ""}`}
     >
-      <p className="text-center text-sm text-primaryColor">
+      <p
+        className={` text-center text-sm text-primaryColor ${
+          isDragging ? "font-bold text-tertiaryColor" : "font-light"
+        }`}
+      >
         {file?.name
           ? ` ${file.name} (Double Click to Remove Image)`
           : "Drag and Drop your image here "}

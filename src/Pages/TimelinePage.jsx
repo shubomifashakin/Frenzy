@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { PostStore } from "../Stores/PostStore";
 import { useParams } from "react-router-dom";
+import { useState } from "react";
+import LoadingSpinner from "../Components/LoadingSpinner";
 
 function TimelinePage() {
   //receives the function to getPosts from our postsStore
@@ -18,11 +20,9 @@ function TimelinePage() {
   });
   const reversed = data?.slice(0)?.reverse();
 
-  // console.log(data);
-
   return (
-    <div className="m-auto w-full  rounded-md bg-tertiaryColor px-5 py-5 lg:mt-0 lg:w-1/2">
-      {status === "pending" ? <p>Loading</p> : null}
+    <div className="m-auto w-full  rounded-md px-5 py-5 lg:mt-0 lg:w-1/2">
+      {status === "pending" ? <LoadingSpinner /> : null}
       {status === "success"
         ? reversed.map((post, i) => <Post key={i} info={post} />)
         : null}
@@ -33,12 +33,34 @@ function TimelinePage() {
 
 function Post({ info }) {
   const { created_at, content, image } = info;
+  const [isShowingImage, setShowImage] = useState(false);
+
   return (
-    <div className="mb-4 min-h-32">
+    <div className=" min-h-32 has-[~div]:mb-4">
       <h1 className=" flex items-center justify-between rounded-t-lg border-2  border-primaryColor bg-secondaryColor px-2 py-3.5 font-semibold text-primaryColor">
         Username <TimeOfPost time={created_at} />
       </h1>
-      <p className="rounded-b-lg bg-primaryColor px-2 py-5"> {content}</p>
+      <p
+        className={` bg-primaryColor px-2 py-5 font-normal ${
+          !image ? "rounded-b-md border-2 border-primaryColor" : ""
+        }`}
+      >
+        {" "}
+        {content}
+      </p>
+
+      {image ? (
+        <PostImage image={image} isShowingImage={isShowingImage} />
+      ) : null}
+
+      {image ? (
+        <span
+          className="block cursor-pointer rounded-b-md border-2 border-primaryColor bg-secondaryColor py-1 text-center text-sm font-semibold text-tertiaryColor transition-all  duration-500 hover:text-secondaryColorHover"
+          onClick={() => setShowImage((c) => !c)}
+        >
+          {isShowingImage ? "Hide" : "Show"} Image
+        </span>
+      ) : null}
     </div>
   );
 }
@@ -51,17 +73,18 @@ function TimeOfPost({ time }) {
     hourCycle: "h12",
   }).format(newTime);
 
-  const onlyTime = new Intl.DateTimeFormat(navigator.language, {
-    timeStyle: "short",
-    hourCycle: "h24",
-    hour12: false,
-  }).format(newTime);
+  return <span className="text-xs underline">{formattedDate}</span>;
+}
 
-  const timePassed = Date.now() - new Date(newTime);
-  const daysSincePost = Math.trunc(timePassed / 86_400_000);
-  const today = daysSincePost === 0 ? `Today by ${onlyTime}` : null;
-  const yesterday = daysSincePost === 1 ? `Yesterday by ${onlyTime}` : null;
-
-  return <span className="text-xs">{formattedDate}</span>;
+function PostImage({ image, isShowingImage }) {
+  return (
+    <div
+      className={` ${
+        isShowingImage ? "flex" : "hidden"
+      }  max-h-60 w-full justify-center  bg-primaryColor px-3 py-6 `}
+    >
+      <img className="w-full object-contain" src={image} />
+    </div>
+  );
 }
 export default TimelinePage;
