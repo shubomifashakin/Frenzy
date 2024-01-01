@@ -83,15 +83,15 @@ function CreatePosts({ isCreatePost, toggleCreatePost }) {
     <div
       className={`animate-flash ease-in-out  ${
         isCreatePost ? "block" : "hidden"
-      } bg-transparentSecondary absolute flex h-full w-full items-center justify-center shadow-sm shadow-secondaryColor backdrop-blur-[2px]`}
+      } bg-transparentSecondary absolute left-0 top-0 flex h-full w-full items-center justify-center shadow-sm shadow-secondaryColor backdrop-blur-[2px]`}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         onKeyDown={HandleEscape}
         className={` w-4/5  rounded-md border-2 border-secondaryColor bg-primaryColor text-xl font-bold text-primaryColor lg:w-1/2`}
       >
-        <h2 className="border-2 border-secondaryColor bg-secondaryColor p-3  text-lg outline-none">
-          New Post
+        <h2 className="flex items-center justify-between border-2 border-secondaryColor bg-secondaryColor p-3  text-lg outline-none">
+          New Post <TimeOfPost />
         </h2>
 
         <form
@@ -191,5 +191,23 @@ function PostContentArea({ register, errors }) {
       />
     </>
   );
+}
+
+function TimeOfPost() {
+  const [date, setDate] = useState(new Date());
+
+  const formatedDate = new Intl.DateTimeFormat(navigator.locale, {
+    dateStyle: "long",
+    timeStyle: "short",
+  }).format(date);
+  useEffect(function () {
+    const intervalId = setInterval(function () {
+      setDate(new Date());
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  });
+
+  return <span className="text-xs">{formatedDate}</span>;
 }
 export default CreatePosts;

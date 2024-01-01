@@ -28,7 +28,6 @@ export const PostStore = create(function (set) {
     },
 
     uploadPost: async function (postDetails) {
-      console.log(postDetails);
       const { image, postContent: content, userId } = postDetails;
       let postInfo;
       let compressedBlob;
@@ -65,7 +64,6 @@ export const PostStore = create(function (set) {
       else {
         //the post data to send to the database
         postInfo = { userId, content };
-        console.log(postInfo);
       }
 
       //send the data to the posts Table

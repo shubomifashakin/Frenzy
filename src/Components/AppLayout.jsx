@@ -13,7 +13,7 @@ const Container = styled.div`
 `;
 
 function AppLayout() {
-  const [mobileNav, toggleMobileNav] = useState(false);
+  const [mobileNav, toggleMobileNav] = useState(true);
   const [isCreatePost, toggleCreatePost] = useState(false);
 
   function handleLayoutClick(e) {
@@ -27,7 +27,7 @@ function AppLayout() {
       className="group relative h-dvh bg-primaryColor lg:grid lg:grid-rows-[0.35fr_3fr] 2xl:grid-rows-[0.2fr_2fr]"
     >
       <Navbar mobileNav={mobileNav} />
-      <main className="h-full overflow-auto px-3 md:p-5">
+      <main className=" h-full overflow-auto md:p-5 md:px-3">
         <Outlet />
       </main>
 
