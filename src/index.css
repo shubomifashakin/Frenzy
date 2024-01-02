@@ -85,3 +85,20 @@
     opacity: 0;
   }
 }
+
+*::-webkit-scrollbar {
+  height: 2px;
+  box-sizing: border-box;
+  background: none;
+  width: 4px;
+}
+
+*::-webkit-scrollbar-track {
+  height: 20px !important;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #f5cea5;
+  /* // border-radius: 5px; */
+  width: 0.5px;
+}

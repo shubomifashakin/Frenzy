@@ -12,7 +12,7 @@ export const PostStore = create(function (set) {
     ...initialState,
 
     getPosts: async function (id) {
-      //fetch the posts
+      //fetch the posts for this particular id
       let { data: Posts, error } = await supabase
         .from("Posts")
         .select("*")
@@ -28,7 +28,7 @@ export const PostStore = create(function (set) {
     },
 
     uploadPost: async function (postDetails) {
-      const { image, postContent: content, userId } = postDetails;
+      const { image, postContent: content, id: userId, username } = postDetails;
 
       let postInfo;
       let compressedBlob;
@@ -39,7 +39,7 @@ export const PostStore = create(function (set) {
         //create a unique image name
         imageName = image.name.replaceAll(/[./?()]/gi, "") + Date.now();
 
-        //compress the image, returns the compressed filed
+        //compress the image, returns the compressed file
         compressedBlob = await new Promise((resolve, reject) => {
           new Compressor(image, {
             quality: 1, // Adjust the desired image quality (0.0 - 1.0)
@@ -62,32 +62,34 @@ export const PostStore = create(function (set) {
         const imageUrl = `https://jmfwsnwrjdahhxvtvqgq.supabase.co/storage/v1/object/public/postImages/${imageName}`;
 
         //the post data we want to send to the database
-        postInfo = { image: imageUrl, userId, content };
+        postInfo = { image: imageUrl, userId, content, username };
+
+        //send the data to the posts & images to the Table
+        const [posts, images] = await Promise.all([
+          supabase.from("Posts").insert(postInfo),
+          supabase.storage.from("postImages").upload(imageName, compressedBlob),
+        ]);
+
+        //if there was an error sending the post data to database, throw it
+        if (posts?.error?.message) {
+          throw new Error(posts.error.message);
+        }
+        //if there was an error sending the post data to database, throw it
+        if (images?.error?.message) {
+          throw new Error(images.error.message);
+        }
       }
 
       //images are not compulsory to upload, so if the user didnt upload an image
       else {
         //the post data to send to the database
-        postInfo = { userId, content };
-      }
+        postInfo = { userId, content, username };
 
-      //send the data to the posts Table
-      const { data, error } = await supabase.from("Posts").insert(postInfo);
+        //send the posts data to the table
+        const { data, error } = await supabase.from("Posts").insert(postInfo);
 
-      //if there was an error sending the post data to database, throw it
-      if (error?.message) {
-        throw new Error(error.message);
-      }
-
-      //if there was an image, upload that image to the storage bucket
-      if (image) {
-        const { error: imageError } = await supabase.storage
-          .from("postImages")
-          .upload(imageName, compressedBlob);
-
-        //if there was an error uploading the image
-        if (imageError) {
-          throw new Error(imageError.message);
+        if (error?.message) {
+          throw new Error(error.message);
         }
       }
     },

@@ -1,15 +1,40 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { supabase } from "../Helpers/supabase";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { CheckBox } from "../Components/CheckBox";
 import InputError from "../Components/InputError";
+import { userStore } from "../Stores/UserStore";
 
 function SignInPage() {
   const [checked, setChecked] = useState(false);
+  const navigate = useNavigate();
+  const setUser = userStore(function (state) {
+    return state.setUser;
+  });
 
-  return (
+  const loggedInfo = JSON.parse(
+    localStorage.getItem("sb-jmfwsnwrjdahhxvtvqgq-auth-token"),
+  );
+
+  //if there was no logged Info we assume the data has expired
+  //i added 3 zeros to it because supabase date.now() is wrong
+  const hasExpired = loggedInfo
+    ? Date.now() > Number(loggedInfo?.expires_at + "000")
+    : true;
+
+  useEffect(
+    function () {
+      if (!hasExpired) {
+        setUser(loggedInfo.user);
+        navigate("profile");
+      }
+    },
+    [hasExpired, navigate, loggedInfo, setUser],
+  );
+
+  return hasExpired ? (
     <div className="h-dvh bg-primaryColor px-8 py-2 md:px-9 md:py-[2rem]">
       <div className="flex h-full flex-col items-center justify-center gap-5">
         <p className="flex animate-flash items-center font-semibold text-tertiaryColor">
@@ -21,34 +46,37 @@ function SignInPage() {
         {checked ? <LogIn /> : <SignUp />}
       </div>
     </div>
-  );
+  ) : null;
 }
 
 function LogIn() {
-  const navigate = useNavigate();
-
   const { handleSubmit, register, formState } = useForm();
-
   const { errors } = formState;
+
+  const setUser = userStore(function (state) {
+    return state.setUser;
+  });
+
+  const navigate = useNavigate();
 
   async function handleLogIn(userInfo) {
     try {
-      //user logs in w the info passed
+      //log in with the info passed
       const {
         data: { user },
         error,
       } = await supabase.auth.signInWithPassword(userInfo);
 
-      //if there was an error loggin in show it
+      //if there was an error logging in, show it
       if (error) {
         throw new Error(error.message);
       }
 
-      //get the id of the user
-      const { id } = user;
+      //set the user in the global user state
+      setUser(user);
 
-      //go to the timeline page
-      navigate(`timeline/${id}`);
+      //if we successfully logged in, go to the timeline page
+      navigate(`timeline`);
     } catch (error) {
       //alert the user
       toast.error(error.message);
@@ -86,30 +114,28 @@ function LogIn() {
 }
 
 function SignUp() {
-  const navigate = useNavigate();
-
   const { handleSubmit, register, getValues, formState } = useForm();
   const { errors } = formState;
 
   async function handleSignUp(userInfo) {
-    const { email, password } = userInfo;
-    try {
-      //user logs in w the info passed
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.signUp({ email, password });
+    const { email, password, userName } = userInfo;
 
-      //if there was an error signing up show it
-      if (error) {
-        throw new Error(error.message);
+    try {
+      //create the user with these details
+      const { data: createdUser, error: createError } =
+        await supabase.auth.signUp({
+          email,
+          password,
+          options: { data: { userName } },
+        });
+
+      //if there was an error signing up
+      if (createError?.message) {
+        throw new Error(createError.message);
       }
 
-      //get the id of the user
-      const { id } = user;
-
-      //go to the timeline page
-      navigate(`timeline/${id}`);
+      //if the users account was successfully created
+      toast.success(`A verification email has been sent to ${email}`);
     } catch (error) {
       //alert the user
       toast.error(error.message);
@@ -125,7 +151,7 @@ function SignUp() {
           <input
             type="text"
             className="input-style"
-            {...register("username", {
+            {...register("userName", {
               minLength: { value: 6, message: "Must be at least 6 characters" },
               maxLength: {
                 value: 12,

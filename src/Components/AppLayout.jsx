@@ -1,16 +1,8 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
-import styled from "styled-components";
 import Navbar from "./Navbar";
 import PostBtn from "./PostBtn";
 import CreatePosts from "./CreatePosts";
-
-const Container = styled.div`
-  display: grid;
-  grid-template-rows: 0.25fr 2fr 0.25fr;
-  height: 100dvh;
-  background-color: red;
-`;
 
 function AppLayout() {
   const [mobileNav, toggleMobileNav] = useState(true);
@@ -21,15 +13,21 @@ function AppLayout() {
     toggleCreatePost(false);
     toggleMobileNav(false);
   }
+
   return (
     <div
       onClick={handleLayoutClick}
-      className="group relative h-dvh bg-primaryColor lg:grid lg:grid-rows-[0.35fr_3fr] 2xl:grid-rows-[0.2fr_2fr]"
+      className="group relative h-dvh bg-primaryColor lg:grid lg:grid-cols-[1fr_1.5fr_1fr] lg:grid-rows-[0.35fr_3fr] 2xl:grid-rows-[0.2fr_2fr]"
     >
       <Navbar mobileNav={mobileNav} />
-      <main className=" h-full overflow-auto bg-tertiaryColor md:p-5 md:px-3">
+
+      <Sidebars colNo={1} />
+
+      <main className=" col-start-2 h-full overflow-auto">
         <Outlet />
       </main>
+
+      <Sidebars colNo={3} />
 
       <CreatePosts
         isCreatePost={isCreatePost}
@@ -38,6 +36,10 @@ function AppLayout() {
       <PostBtn toggleCreatePost={toggleCreatePost} />
     </div>
   );
+}
+
+function Sidebars({ colNo }) {
+  return <div className={`col-start-${colNo} row-span-2`}></div>;
 }
 
 export default AppLayout;

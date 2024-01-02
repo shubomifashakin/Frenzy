@@ -16,10 +16,10 @@ export default {
       },
 
       colors: {
-        primaryColor: "#f3f9d2",
+        primaryColor: "#FFFFE8",
         secondaryColor: "#f46036",
-        secondaryColorHover: "#FDBA74",
-        tertiaryColor: "#2f2f2f",
+        secondaryColorHover: "#f5cea5",
+        tertiaryColor: "#d3d3d3",
         transparentSecondary: "#f45f36ab",
       },
     },

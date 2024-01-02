@@ -1,29 +1,27 @@
 import { useEffect, useState } from "react";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Button } from "../Pages/SignInPage";
 import InputError from "./InputError";
-import { PostStore } from "../Stores/PostStore";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useParams } from "react-router-dom";
+import { userStore } from "../Stores/UserStore";
+import { uploadPost } from "../Actions/functions";
 
 function CreatePosts({ isCreatePost, toggleCreatePost }) {
   const [isDragging, setIsDragging] = useState(false);
   const [file, setFile] = useState(null);
 
-  //get the user id from the url
-  const { userId } = useParams();
-
-  //gets the function to upload the post from the post store
-  const uploadPost = PostStore(function (state) {
-    return state.uploadPost;
+  const {
+    id,
+    user_metadata: { userName: username },
+  } = userStore(function (state) {
+    return state.user;
   });
 
   const { register, handleSubmit, formState, reset } = useForm();
   const { errors } = formState;
 
   const queryClient = useQueryClient();
-
   const { mutate } = useMutation({
     mutationFn: uploadPost,
     onSuccess: function () {
@@ -55,9 +53,9 @@ function CreatePosts({ isCreatePost, toggleCreatePost }) {
   function submitPost(postInfo) {
     //if no image was added, uploaded the post content and userId like that
     if (!file) {
-      mutate({ ...postInfo, userId });
+      mutate({ ...postInfo, id, username });
     } else {
-      mutate({ ...postInfo, image: file, userId });
+      mutate({ ...postInfo, image: file, id, username });
     }
   }
 
@@ -80,11 +78,7 @@ function CreatePosts({ isCreatePost, toggleCreatePost }) {
   }, []);
 
   return (
-    <div
-      className={`animate-flash ease-in-out  ${
-        isCreatePost ? "block" : "hidden"
-      } absolute left-0 top-0 flex h-full w-full items-center justify-center bg-transparentSecondary shadow-sm shadow-secondaryColor backdrop-blur-[2px]`}
-    >
+    <PostContainer isCreatePost={isCreatePost}>
       <div
         onClick={(e) => e.stopPropagation()}
         onKeyDown={HandleEscape}
@@ -102,6 +96,7 @@ function CreatePosts({ isCreatePost, toggleCreatePost }) {
             register={register}
             errors={errors?.postContent?.message}
           />
+
           <DropFile
             file={file}
             setFile={setFile}
@@ -114,6 +109,18 @@ function CreatePosts({ isCreatePost, toggleCreatePost }) {
           </div>
         </form>
       </div>
+    </PostContainer>
+  );
+}
+
+function PostContainer({ isCreatePost, children }) {
+  return (
+    <div
+      className={`animate-flash ease-in-out  ${
+        isCreatePost ? "block" : "hidden"
+      } absolute left-0 top-0 flex h-full w-full items-center justify-center bg-transparentSecondary shadow-sm shadow-secondaryColor backdrop-blur-[2px]`}
+    >
+      {children}
     </div>
   );
 }
