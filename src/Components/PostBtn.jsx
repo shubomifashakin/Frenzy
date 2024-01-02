@@ -1,12 +1,13 @@
 import { IoIosSend } from "react-icons/io";
-import { LuSend } from "react-icons/lu";
 
 function PostBtn({ toggleCreatePost, toggleMobileNav }) {
   function handleTogglePost(e) {
     e.stopPropagation();
     toggleCreatePost((c) => !c);
+    //if the mobile nav is open close it
     toggleMobileNav(false);
   }
+
   return (
     <button
       onClick={handleTogglePost}

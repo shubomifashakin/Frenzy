@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+
 import { Button } from "../Pages/SignInPage";
 import InputError from "./InputError";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { userStore } from "../Stores/UserStore";
+
 import { uploadPost } from "../Actions/functions";
+import { userStore } from "../Stores/UserStore";
 
 function CreatePosts({ isCreatePost, toggleCreatePost }) {
   const [isDragging, setIsDragging] = useState(false);
@@ -22,6 +24,7 @@ function CreatePosts({ isCreatePost, toggleCreatePost }) {
   const { errors } = formState;
 
   const queryClient = useQueryClient();
+
   const { mutate } = useMutation({
     mutationFn: uploadPost,
     onSuccess: function () {
@@ -125,6 +128,25 @@ function PostContainer({ isCreatePost, children }) {
   );
 }
 
+function PostContentArea({ register, errors }) {
+  return (
+    <>
+      <InputError>{errors}</InputError>
+      <textarea
+        placeholder="Tell your Frenzies something..."
+        className="mb-4 block max-h-52 min-h-32 w-full resize-y overflow-y-auto bg-transparent text-base font-semibold text-black outline-none"
+        {...register("postContent", {
+          required: { value: true, message: "Post cannot be empty" },
+          maxLength: {
+            value: 500,
+            message: "A Post cannot exceed 500 characters",
+          },
+        })}
+      />
+    </>
+  );
+}
+
 function DropFile({ file, setFile, setIsDragging, isDragging }) {
   function handleDragOver(e) {
     setIsDragging(true);
@@ -181,25 +203,6 @@ function DropFile({ file, setFile, setIsDragging, isDragging }) {
           : "Drag and Drop your image here "}
       </p>
     </div>
-  );
-}
-
-function PostContentArea({ register, errors }) {
-  return (
-    <>
-      <InputError>{errors}</InputError>
-      <textarea
-        placeholder="Tell your Frenzies something..."
-        className="mb-4 block max-h-52 min-h-32 w-full resize-y overflow-y-auto bg-transparent text-base font-semibold text-black outline-none"
-        {...register("postContent", {
-          required: { value: true, message: "Post cannot be empty" },
-          maxLength: {
-            value: 500,
-            message: "A Post cannot exceed 500 characters",
-          },
-        })}
-      />
-    </>
   );
 }
 

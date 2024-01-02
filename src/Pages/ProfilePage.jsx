@@ -1,7 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+
 import { userStore } from "../Stores/UserStore";
+
 import { getPosts } from "../Actions/functions";
+
 import LoadingPosts from "../Components/LoadingPosts";
 
 function ProfilePage() {
@@ -55,7 +58,7 @@ function Post({ info }) {
 
 function PostHeader({ created_at, username }) {
   return (
-    <h1 className=" border-primaryBgColor flex items-center justify-between rounded-t-lg border-b  px-2 py-1 font-semibold text-black">
+    <h1 className=" flex items-center justify-between rounded-t-lg border-b border-primaryBgColor  px-2 py-1 font-semibold text-black">
       {username} <TimeOfPost time={created_at} />
     </h1>
   );
@@ -92,7 +95,7 @@ function PostImage({ image, isShowingImage, setShowImage }) {
       </div>
 
       <span
-        className="border-primaryBgColor block  cursor-pointer border-t  py-1 text-center text-xs font-semibold text-stone-800  transition-all duration-300 hover:py-1.5 hover:text-stone-500"
+        className="block cursor-pointer  border-t border-primaryBgColor  py-1 text-center text-xs font-semibold text-stone-800  transition-all duration-300 hover:py-1.5 hover:text-stone-500"
         onClick={() => setShowImage((c) => !c)}
       >
         {isShowingImage ? "Hide" : "Show"} Image

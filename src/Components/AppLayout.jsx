@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
-import { Navigate, Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import PostBtn from "./PostBtn";
 import CreatePosts from "./CreatePosts";
-import { TbLogout2 } from "react-icons/tb";
 import { supabase } from "../Helpers/supabase";
+import Sidebars from "./Sidebars";
 
 function AppLayout() {
   const [mobileNav, toggleMobileNav] = useState(false);
   const [isCreatePost, toggleCreatePost] = useState(false);
 
+  //if we click anywhere on the layout remove the mobilenav and post modal
   function handleLayoutClick(e) {
     e.stopPropagation();
     toggleCreatePost(false);
@@ -47,26 +48,6 @@ function AppLayout() {
         toggleCreatePost={toggleCreatePost}
         toggleMobileNav={toggleMobileNav}
       />
-    </div>
-  );
-}
-
-function Sidebars({ colNo, height = "small", children, sideColor = false }) {
-  return (
-    <div className={`hidden lg:block col-start-${colNo} row-span-2 p-5`}>
-      <div
-        className={`flex flex-col justify-between
-         ${height === "small" ? "h-1/4" : ""} 
-        
-        ${height === "medium" ? "h-1/2" : ""}
-
-        ${height === "full" ? "h-full" : ""} 
-        
-        ${sideColor ? " bg-sideColor" : ""} 
-        flex w-full flex-col space-y-6  `}
-      >
-        {children}
-      </div>
     </div>
   );
 }

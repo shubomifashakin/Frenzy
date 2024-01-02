@@ -1,9 +1,10 @@
-import { Link, useNavigate } from "react-router-dom";
-import { userStore } from "../Stores/UserStore";
 import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+
 import { supabase } from "../Helpers/supabase";
+
+import { userStore } from "../Stores/UserStore";
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa6";
-import SearchBar from "./SearchBar";
 
 function Navbar({ mobileNav, toggleMobileNav }) {
   const {
@@ -111,6 +112,7 @@ function LogOutBtn() {
     </button>
   );
 }
+
 function Username({ children }) {
   return (
     <Link
@@ -119,6 +121,47 @@ function Username({ children }) {
     >
       {children}
     </Link>
+  );
+}
+
+function SearchBar() {
+  const [searchValue, setSearchValue] = useState("");
+
+  return (
+    <div className="group relative block items-center justify-center lg:order-2 lg:flex lg:h-full lg:w-80 ">
+      <div className="relative flex w-full items-center border-2 border-black  font-semibold text-primaryBgColor lg:rounded">
+        <span className="h-full border-r-2 border-black bg-btnColor p-2 font-bold">
+          @
+        </span>
+        <form className="w-full">
+          <input
+            className="input-style focus:bg-btnHoverColor w-full rounded-none border-none bg-btnColor"
+            placeholder="username"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+          />
+        </form>
+      </div>
+      <SearchBarDropdown searchValue={searchValue} />
+    </div>
+  );
+}
+
+function SearchBarDropdown({ searchValue }) {
+  //when the searchbarvalue changes refetch the users
+  useEffect(
+    function () {
+      if (searchValue.length > 2) console.log("yowa");
+    },
+    [searchValue],
+  );
+
+  return (
+    <div
+      className={`absolute left-0 top-full z-50  min-h-20 w-full  scroll-auto border-t-2 border-white bg-btnColor transition-all duration-500 ${
+        searchValue.length > 2 ? "block" : "hidden"
+      }  lg:max-h-60 lg:min-h-20  `}
+    ></div>
   );
 }
 

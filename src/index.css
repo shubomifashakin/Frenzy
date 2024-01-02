@@ -99,6 +99,10 @@
 
 *::-webkit-scrollbar-thumb {
   background-color: #f45f31;
-  /* // border-radius: 5px; */
   width: 0.5px;
+}
+
+* {
+  scrollbar-color: #f45f31 transparent;
+  scrollbar-width: thin;
 }
