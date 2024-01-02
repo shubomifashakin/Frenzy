@@ -2,10 +2,11 @@
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
-    fontFamily: { sans: ['"Montserrat", sans-serif'] },
+    fontFamily: { sans: ['"Poppins", sans-serif'] },
     extend: {
       animation: {
         flash: "flash .5s ease-in-out",
+        flasInfinite: "flash2 1.25s ease-in-out infinite",
       },
 
       keyframes: {
@@ -13,14 +14,21 @@ export default {
           from: { opacity: 0 },
           to: { opacity: 1 },
         },
+        flash2: {
+          "0%": { opacity: 0.6 },
+          "50%": { opacity: 0.4 },
+          "100%": { opacity: 0.6 },
+        },
       },
 
       colors: {
-        primaryColor: "#FFFFE8",
-        secondaryColor: "#f46036",
-        secondaryColorHover: "#f5cea5",
+        primaryBgColor: "#FFFFE8",
+        secondaryColor: "#f5cea5",
         tertiaryColor: "#d3d3d3",
-        transparentSecondary: "#f45f36ab",
+
+        sideColor: "#ece0d2",
+        textHover: "#181717",
+        btnColor: "#f45f36ab",
       },
     },
   },

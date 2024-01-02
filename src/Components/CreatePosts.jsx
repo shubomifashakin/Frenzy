@@ -82,7 +82,7 @@ function CreatePosts({ isCreatePost, toggleCreatePost }) {
       <div
         onClick={(e) => e.stopPropagation()}
         onKeyDown={HandleEscape}
-        className={` w-4/5  rounded-md border-2 border-secondaryColor bg-primaryColor text-xl font-bold text-primaryColor lg:w-1/2`}
+        className={` bg-primaryBgColor  w-4/5 rounded-md border-2 border-secondaryColor text-xl font-bold  lg:w-1/2`}
       >
         <h2 className="flex items-center justify-between border-2 border-secondaryColor bg-secondaryColor p-3  text-lg outline-none">
           New Post <TimeOfPost />
@@ -118,7 +118,7 @@ function PostContainer({ isCreatePost, children }) {
     <div
       className={`animate-flash ease-in-out  ${
         isCreatePost ? "block" : "hidden"
-      } absolute left-0 top-0 flex h-full w-full items-center justify-center bg-transparentSecondary shadow-sm shadow-secondaryColor backdrop-blur-[2px]`}
+      } absolute left-0 top-0 flex h-full w-full items-center justify-center  shadow-sm shadow-secondaryColor backdrop-blur-[2px]`}
     >
       {children}
     </div>
@@ -168,12 +168,12 @@ function DropFile({ file, setFile, setIsDragging, isDragging }) {
       onDrop={handleDrop}
       onDoubleClick={HanldeDiscardImage}
       className={`mb-4 hidden rounded-lg transition-all duration-500  ${
-        isDragging ? "bg-secondaryColorHover" : "bg-tertiaryColor"
+        isDragging ? "bg-secondaryColor hover:bg-stone-300" : "bg-tertiaryColor"
       } px-5 py-7 lg:block ${file?.name ? "cursor-pointer" : ""}`}
     >
       <p
-        className={` text-center text-sm text-primaryColor ${
-          isDragging ? "font-bold text-tertiaryColor" : "font-light"
+        className={`text-center text-sm font-bold capitalize ${
+          isDragging ? " text-black" : ""
         }`}
       >
         {file?.name

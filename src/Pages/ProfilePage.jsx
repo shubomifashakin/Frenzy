@@ -3,6 +3,7 @@ import { useState } from "react";
 import LoadingSpinner from "../Components/LoadingSpinner";
 import { userStore } from "../Stores/UserStore";
 import { getPosts } from "../Actions/functions";
+import LoadingPosts from "../Components/LoadingPosts";
 
 function ProfilePage() {
   const { id } = userStore(function (state) {
@@ -20,7 +21,7 @@ function ProfilePage() {
 
   return (
     <div className="w-full space-y-4 border-tertiaryColor p-5 lg:mt-0  lg:border-x">
-      {status === "pending" ? <LoadingSpinner /> : null}
+      {status === "pending" ? <LoadingPosts /> : null}
 
       {status === "success"
         ? reversed.map((post, i) => <Post key={i} info={post} />)
@@ -37,14 +38,10 @@ function Post({ info }) {
   const { created_at, content, image, username } = info;
 
   return (
-    <div className=" bg-secondaryColorHover">
-      <h1 className=" flex items-center justify-between rounded-t-lg border-b border-primaryColor  px-2 py-1 font-semibold text-black">
-        {username} <TimeOfPost time={created_at} />
-      </h1>
+    <div className=" bg-secondaryColor">
+      <PostHeader username={username} created_at={created_at} />
 
-      <p className={`min-h-10  px-2 py-5 font-normal  text-black `}>
-        {content}
-      </p>
+      <PostContent content={content} />
 
       {image ? (
         <PostImage
@@ -57,16 +54,30 @@ function Post({ info }) {
   );
 }
 
+function PostHeader({ created_at, username }) {
+  return (
+    <h1 className=" border-primaryBgColor flex items-center justify-between rounded-t-lg border-b  px-2 py-1 font-semibold text-black">
+      {username} <TimeOfPost time={created_at} />
+    </h1>
+  );
+}
+
 function TimeOfPost({ time }) {
   const newTime = new Date(time);
   const formattedDate = new Intl.DateTimeFormat(navigator.language, {
-    dateStyle: "medium",
+    dateStyle: "short",
     timeStyle: "short",
     hourCycle: "h12",
   }).format(newTime);
 
   return (
     <span className="text-xs font-medium  underline">{formattedDate}</span>
+  );
+}
+
+function PostContent({ content }) {
+  return (
+    <p className={`min-h-10  px-2 py-5 font-normal  text-black `}>{content}</p>
   );
 }
 
@@ -82,7 +93,7 @@ function PostImage({ image, isShowingImage, setShowImage }) {
       </div>
 
       <span
-        className="block cursor-pointer  border-t border-primaryColor  py-1 text-center text-xs font-semibold text-stone-800   transition-all duration-500 hover:text-secondaryColorHover"
+        className="border-primaryBgColor block  cursor-pointer border-t  py-1 text-center text-xs font-semibold text-stone-800  transition-all duration-300 hover:py-1.5 hover:text-stone-500"
         onClick={() => setShowImage((c) => !c)}
       >
         {isShowingImage ? "Hide" : "Show"} Image
@@ -90,4 +101,5 @@ function PostImage({ image, isShowingImage, setShowImage }) {
     </>
   );
 }
+
 export default ProfilePage;
