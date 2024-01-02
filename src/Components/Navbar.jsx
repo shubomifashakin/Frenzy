@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { userStore } from "../Stores/UserStore";
 import { useEffect, useState } from "react";
 import { supabase } from "../Helpers/supabase";
-import { FaCaretRight } from "react-icons/fa6";
+import { FaCaretLeft, FaCaretRight } from "react-icons/fa6";
 import SearchBar, { SearchBarDropdown } from "./SearchBar";
 
 function Navbar({ mobileNav, toggleMobileNav }) {
@@ -21,21 +21,28 @@ function Navbar({ mobileNav, toggleMobileNav }) {
       <SearchBar />
       <Username>{userName}</Username>
       <Timer />
-      <MobileNavTrigger toggleMobileNav={toggleMobileNav} />
+      <MobileNavTrigger
+        mobileNav={mobileNav}
+        toggleMobileNav={toggleMobileNav}
+      />
     </nav>
   );
 }
 
-function MobileNavTrigger({ toggleMobileNav }) {
+function MobileNavTrigger({ mobileNav, toggleMobileNav }) {
   return (
     <div
       onClick={(e) => {
         e.stopPropagation();
         toggleMobileNav((c) => !c);
       }}
-      className="bg-btnHoverColor absolute left-full  top-1/2 m-auto flex h-20 w-10 translate-y-[-50%] items-center justify-start rounded-br-full rounded-tr-full text-left sm:h-24 sm:w-12  lg:hidden"
+      className="bg-btnHoverColor absolute left-full top-1/2  m-auto flex h-20 w-10 translate-y-[-50%] cursor-pointer items-center justify-start rounded-br-full rounded-tr-full text-left sm:h-24 sm:w-12  lg:hidden"
     >
-      <FaCaretRight display={"inline"} fontSize={"2rem"} />
+      {mobileNav ? (
+        <FaCaretLeft display={"inline"} fontSize={"2rem"} />
+      ) : (
+        <FaCaretRight display={"inline"} fontSize={"2rem"} />
+      )}
     </div>
   );
 }
