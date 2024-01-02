@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import LoadingSpinner from "../Components/LoadingSpinner";
 import { userStore } from "../Stores/UserStore";
 import { getPosts } from "../Actions/functions";
 import LoadingPosts from "../Components/LoadingPosts";
