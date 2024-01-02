@@ -20,6 +20,7 @@ function Navbar({ mobileNav, toggleMobileNav }) {
     >
       <SearchBar />
       <Username>{userName}</Username>
+      <LogOutBtn />
       <Timer />
       <MobileNavTrigger
         mobileNav={mobileNav}
@@ -82,11 +83,9 @@ function Timer() {
   });
 
   return (
-    <div className=" flex w-20 flex-col bg-red-300 lg:order-3 lg:h-1/4 lg:items-center lg:justify-center">
+    <div className="lg:hidden ">
       <p
-        className={`w-full text-center text-lg font-bold ${
-          lessThan1hour ? "text-red-500" : ""
-        } ${
+        className={` text-lg font-bold ${lessThan1hour ? "text-red-500" : ""} ${
           lessThan30mins ? "text-red-600" : ""
         } transition-colors duration-500 ease-in-out`}
       >
@@ -96,6 +95,22 @@ function Timer() {
   );
 }
 
+function LogOutBtn() {
+  const navigate = useNavigate();
+  async function logOut() {
+    let { error } = await supabase.auth.signOut();
+    navigate("/");
+  }
+
+  return (
+    <button
+      onClick={logOut}
+      className=" text-left font-bold  transition-all duration-300 hover:text-stone-600 lg:order-3"
+    >
+      Log Out
+    </button>
+  );
+}
 function Username({ children }) {
   return (
     <Link

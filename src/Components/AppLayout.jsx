@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import PostBtn from "./PostBtn";
@@ -24,10 +24,12 @@ function AppLayout() {
       <Navbar mobileNav={mobileNav} toggleMobileNav={toggleMobileNav} />
 
       <Sidebars colNo={1} height={"full"}>
-        <div className="h-1/4  bg-sideColor"></div>
-        <div className="h-1/4  bg-sideColor"></div>
+        <div className="flex  h-3/4 w-full flex-col justify-between space-y-4">
+          <div className="h-1/2  bg-sideColor"></div>
+          <div className="h-1/2  bg-sideColor"></div>
+        </div>
 
-        <LogOutBtn />
+        <Timer />
       </Sidebars>
 
       <main className=" col-start-2 h-full overflow-auto">
@@ -49,37 +51,71 @@ function AppLayout() {
   );
 }
 
-function LogOutBtn() {
+function Sidebars({ colNo, height = "small", children, sideColor = false }) {
+  return (
+    <div className={`hidden lg:block col-start-${colNo} row-span-2 p-5`}>
+      <div
+        className={`flex flex-col justify-between
+         ${height === "small" ? "h-1/4" : ""} 
+        
+        ${height === "medium" ? "h-1/2" : ""}
+
+        ${height === "full" ? "h-full" : ""} 
+        
+        ${sideColor ? " bg-sideColor" : ""} 
+        flex w-full flex-col space-y-6  `}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function Timer() {
+  const timeHad = 60 * 1000 * 60 * 2;
+  const [timeLeft, setTimeLeft] = useState(timeHad);
+  let hours = Math.floor(timeLeft / 3600000);
+  let minutes = Math.floor((timeLeft % 3600000) / 60000);
+  let seconds = Math.floor((timeLeft % 60000) / 1000);
+
+  const lessThan1hour = timeLeft < 60 * 1000 * 60;
+  const lessThan30mins = timeLeft < 60 * 1000 * 30;
+
+  // Add leading zeros if needed
+  hours = hours < 10 ? "0" + hours : hours;
+  minutes = minutes < 10 ? "0" + minutes : minutes;
+  seconds = seconds < 10 ? "0" + seconds : seconds;
+
   const navigate = useNavigate();
+
   async function logOut() {
     let { error } = await supabase.auth.signOut();
     navigate("/");
   }
 
-  return (
-    <button
-      onClick={logOut}
-      className="text-center text-sm font-normal underline transition-all duration-300 hover:text-stone-600"
-    >
-      Log Out
-    </button>
-  );
-}
+  useEffect(function () {
+    const intervalId = setInterval(function () {
+      if (timeLeft) {
+        setTimeLeft((c) => c - 1000);
+      } else {
+        logOut();
+      }
+    }, 1000);
 
-function Sidebars({ colNo, height = "small", children, sideColor = false }) {
+    return () => clearInterval(intervalId);
+  });
+
   return (
-    <div className={`hidden lg:block col-start-${colNo} row-span-2 p-5`}>
-      <div
-        className={`${
-          height === "small"
-            ? "h-1/4"
-            : height === "medium"
-              ? "h-1/2"
-              : "h-full"
-        } ${sideColor ? " bg-sideColor" : ""} flex w-full flex-col space-y-6  `}
+    <div className=" flex-collg:items-center flex w-20 lg:justify-center">
+      <p
+        className={`w-full text-center text-lg font-bold ${
+          lessThan1hour ? "text-red-500" : ""
+        } ${
+          lessThan30mins ? "text-red-600" : ""
+        } transition-colors duration-500 ease-in-out`}
       >
-        {children}
-      </div>
+        {hours}:{minutes}:{seconds}
+      </p>
     </div>
   );
 }
