@@ -1,6 +1,7 @@
 function LoadingPosts() {
   return (
-    <div className="animate-flasInfinite flex h-full w-full flex-col justify-between space-y-4">
+    <div className="flex h-full w-full animate-flasInfinite flex-col justify-between space-y-4">
+      <Post />
       <Post />
       <Post />
       <Post />
@@ -22,7 +23,7 @@ function Post() {
 
 function PostHeader() {
   return (
-    <h1 className="border-primaryBgColor min-h-10 rounded-t-lg border-b  px-2 py-1"></h1>
+    <h1 className="min-h-10 rounded-t-lg border-b border-primaryBgColor  px-2 py-1"></h1>
   );
 }
 

@@ -28,7 +28,8 @@ export default {
 
         sideColor: "#ece0d2",
         textHover: "#181717",
-        btnColor: "#f45f36ab",
+        btnColor: "#f45f31",
+        btnHoverColor: "#f45f31c0",
       },
     },
   },

@@ -82,7 +82,7 @@ function CreatePosts({ isCreatePost, toggleCreatePost }) {
       <div
         onClick={(e) => e.stopPropagation()}
         onKeyDown={HandleEscape}
-        className={` bg-primaryBgColor  w-4/5 rounded-md border-2 border-secondaryColor text-xl font-bold  lg:w-1/2`}
+        className={` w-4/5  rounded-md border-2 border-secondaryColor bg-primaryBgColor text-xl font-bold  lg:w-1/2`}
       >
         <h2 className="flex items-center justify-between border-2 border-secondaryColor bg-secondaryColor p-3  text-lg outline-none">
           New Post <TimeOfPost />

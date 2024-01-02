@@ -13,19 +13,19 @@ function AppLayout() {
   function handleLayoutClick(e) {
     e.stopPropagation();
     toggleCreatePost(false);
-    toggleMobileNav((c) => !c);
+    toggleMobileNav(false);
   }
 
   return (
     <div
       onClick={handleLayoutClick}
-      className="bg-primaryBgColor group relative h-dvh lg:grid lg:grid-cols-[1fr_1.5fr_1fr] lg:grid-rows-[0.35fr_3fr] 2xl:grid-rows-[0.2fr_2fr]"
+      className="group relative h-dvh bg-primaryBgColor lg:grid lg:grid-cols-[1fr_1.5fr_1fr] lg:grid-rows-[0.35fr_3fr] 2xl:grid-rows-[0.2fr_2fr]"
     >
-      <Navbar mobileNav={mobileNav} />
+      <Navbar mobileNav={mobileNav} toggleMobileNav={toggleMobileNav} />
 
       <Sidebars colNo={1} height={"full"}>
-        <div className="bg-sideColor  h-1/4"></div>
-        <div className="bg-sideColor  h-1/4"></div>
+        <div className="h-1/4  bg-sideColor"></div>
+        <div className="h-1/4  bg-sideColor"></div>
 
         <LogOutBtn />
       </Sidebars>
@@ -40,7 +40,11 @@ function AppLayout() {
         isCreatePost={isCreatePost}
         toggleCreatePost={toggleCreatePost}
       />
-      <PostBtn toggleCreatePost={toggleCreatePost} />
+
+      <PostBtn
+        toggleCreatePost={toggleCreatePost}
+        toggleMobileNav={toggleMobileNav}
+      />
     </div>
   );
 }

@@ -4,7 +4,7 @@
 
 @layer components {
   .input-style {
-    @apply text-primaryBgColor bg-btnColor border-btnColor rounded-md border p-2 font-semibold outline-none transition-all duration-500 ease-in-out hover:border-secondaryColor;
+    @apply rounded-md border border-btnColor bg-btnColor p-2 font-semibold text-primaryBgColor outline-none transition-all duration-500 ease-in-out placeholder:text-primaryBgColor hover:border-secondaryColor;
   }
 }
 .lds-spinner {
@@ -98,7 +98,7 @@
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: #f45f36ab;
+  background-color: #f45f31;
   /* // border-radius: 5px; */
   width: 0.5px;
 }
