@@ -3,7 +3,7 @@ import { userStore } from "../Stores/UserStore";
 import { useEffect, useState } from "react";
 import { supabase } from "../Helpers/supabase";
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa6";
-import SearchBar, { SearchBarDropdown } from "./SearchBar";
+import SearchBar from "./SearchBar";
 
 function Navbar({ mobileNav, toggleMobileNav }) {
   const {
@@ -14,8 +14,8 @@ function Navbar({ mobileNav, toggleMobileNav }) {
   return (
     <nav
       onClick={(e) => e.stopPropagation()}
-      className={`absolute left-0 top-0  z-50  col-span-full row-span-1 flex h-full w-1/2 flex-col space-y-2 border-b border-tertiaryColor bg-primaryBgColor px-2 py-4 transition-all duration-500 ease-in-out md:p-5 lg:relative lg:left-0 lg:z-auto lg:h-auto lg:w-full lg:flex-row lg:items-center lg:justify-between lg:space-y-0 lg:px-5 lg:py-0 ${
-        mobileNav ? "left-0" : "left-[-50%]"
+      className={`absolute left-0 top-0  z-50  col-span-full row-span-1 flex h-full w-9/12 flex-col space-y-2 border-b border-tertiaryColor bg-primaryBgColor px-2 py-4 transition-all duration-500 ease-in-out md:p-5 lg:relative lg:left-0 lg:z-auto lg:h-auto lg:w-full lg:flex-row lg:items-center lg:justify-between lg:space-y-0 lg:px-5 lg:py-0 ${
+        mobileNav ? "left-0" : "left-[-75%]"
       }`}
     >
       <SearchBar />
