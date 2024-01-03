@@ -1,6 +1,5 @@
 import Compressor from "compressorjs";
 import { supabase } from "../Helpers/supabase";
-import { data } from "autoprefixer";
 
 export async function getPosts(id) {
   //fetch the posts for this particular id
@@ -85,7 +84,7 @@ export async function uploadPost(postDetails) {
   }
 }
 
-export async function getAvatar(id) {
+export async function getUsersInfo(id) {
   let { data: UsersInfo, error } = await supabase
     .from("UsersInfo")
     .select("*")
@@ -96,4 +95,14 @@ export async function getAvatar(id) {
   }
 
   return UsersInfo[0];
+}
+
+export async function getAllPostsByUsers() {
+  let { data: Posts, error } = await supabase.from("Posts").select("*");
+
+  if (error?.message) {
+    throw new Error(error.message);
+  }
+
+  return Posts;
 }

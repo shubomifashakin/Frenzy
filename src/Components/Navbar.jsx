@@ -1,5 +1,5 @@
 import { memo, useContext, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 import { supabase } from "../Helpers/supabase";
 
@@ -22,6 +22,7 @@ function Navbar() {
 
   const { mobileNav, toggleMobileNav, setSearchValue } =
     useContext(UserContext);
+
   return (
     <nav
       onClick={CloseSearch}
@@ -35,6 +36,7 @@ function Navbar() {
       </NavItem>
       <NavItem path={"profile"}>{userName}</NavItem>
       <NavItem path={"timeline"}>Timeline</NavItem>
+      <NavItem path={"explore"}>Explore</NavItem>
       <LogOutBtn />
       <Timer />
       <MobileNavTrigger
@@ -55,7 +57,7 @@ const MobileNavTrigger = memo(function MobileNavTrigger({
         e.stopPropagation();
         toggleMobileNav((c) => !c);
       }}
-      className="bg-orangeLight absolute left-full top-1/2  m-auto flex h-20 w-10 translate-y-[-50%] cursor-pointer items-center justify-start rounded-br-full rounded-tr-full text-left sm:h-24 sm:w-12  lg:hidden"
+      className="absolute left-full top-1/2 m-auto  flex h-20 w-10 translate-y-[-50%] cursor-pointer items-center justify-start rounded-br-full rounded-tr-full bg-orangeLight text-left sm:h-24 sm:w-12  lg:hidden"
     >
       {mobileNav ? (
         <FaCaretLeft display={"inline"} fontSize={"2rem"} />
@@ -125,7 +127,7 @@ const LogOutBtn = memo(function LogOutBtn() {
   return (
     <button
       onClick={logOut}
-      className="hover:text-orangeColor order-last text-left  font-bold transition-all duration-300 lg:order-3 lg:justify-self-end"
+      className="order-last text-left font-bold  transition-all duration-300 hover:text-orangeColor lg:order-3 lg:justify-self-end"
     >
       Log Out
     </button>
@@ -136,14 +138,14 @@ const NavItem = memo(function Username({ children, path, logo = false }) {
   return (
     <>
       {!logo ? (
-        <Link
+        <NavLink
           to={path}
-          className={`hover:text-orangeColor cursor-pointer font-bold transition-all duration-500 ease-in-out  ${
+          className={`cursor-pointer font-bold transition-all duration-500 ease-in-out hover:text-orangeColor  ${
             logo ? "order-1 lg:block" : "order-3 lg:hidden"
           } lg:justify-self-start`}
         >
           {children}
-        </Link>
+        </NavLink>
       ) : null}
 
       {logo ? (
@@ -165,12 +167,12 @@ function SearchBar() {
     <div className="group relative order-2 block items-center justify-center lg:order-2 lg:flex lg:h-full lg:w-full ">
       <div className="relative flex w-full items-center border-2 border-black  font-semibold text-primaryBgColor lg:rounded">
         <input
-          className="input-style bg-orangeColor focus:bg-btnHover peer order-2 w-full rounded-none border-none transition-all duration-500 focus:text-primaryBgColor "
+          className="input-style peer order-2 w-full rounded-none border-none bg-orangeColor transition-all duration-500 focus:bg-btnHover focus:text-primaryBgColor "
           placeholder="username"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
         />
-        <span className="bg-orangeColor peer-focus:bg-btnHover order-1 h-full cursor-default   border-r-2 border-black p-2 font-bold transition-all duration-500 peer-focus:text-primaryBgColor">
+        <span className="order-1 h-full cursor-default border-r-2 border-black   bg-orangeColor p-2 font-bold transition-all duration-500 peer-focus:bg-btnHover peer-focus:text-primaryBgColor">
           @
         </span>
       </div>
@@ -221,7 +223,7 @@ const SearchBarDropdown = memo(function SearchBarDropdown({ searchValue }) {
 
   return (
     <div
-      className={`bg-btnHover absolute left-0 top-full z-50  flex  w-full flex-shrink-0 flex-col justify-center divide-y overflow-y-scroll  transition-all duration-500 ${
+      className={`absolute left-0 top-full z-50 flex  w-full  flex-shrink-0 flex-col justify-center divide-y overflow-y-scroll bg-btnHover  transition-all duration-500 ${
         searchValue.length > 2 ? "block" : "hidden"
       }  lg:max-h-72 lg:min-h-20  `}
     >
@@ -240,7 +242,7 @@ const SearchBarDropdown = memo(function SearchBarDropdown({ searchValue }) {
 
 function FoundUser({ user }) {
   return (
-    <span className="hover:bg-orangeColor h-32 w-full flex-shrink-0  rounded-sm px-2 py-4 font-semibold text-primaryBgColor  transition-all duration-500">
+    <span className="h-32 w-full flex-shrink-0 rounded-sm  px-2 py-4 font-semibold text-primaryBgColor transition-all  duration-500 hover:bg-orangeColor">
       {user.username.slice(1, user.username.length - 1)}
     </span>
   );

@@ -31,7 +31,7 @@ function CreatePosts() {
     mutationFn: uploadPost,
     onSuccess: function () {
       toast.success("Post Was Sent");
-      queryClient.invalidateQueries("posts");
+      queryClient.invalidateQueries(["posts", "allPosts"]);
 
       //remove the file
       setFile(null);

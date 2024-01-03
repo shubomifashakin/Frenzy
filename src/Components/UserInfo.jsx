@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAvatar } from "../Actions/functions";
+import { getUsersInfo } from "../Actions/functions";
 import { userStore } from "../Stores/UserStore";
 import LoadingUsersInfo from "./LoadingUsersInfo";
 import { NavLink } from "react-router-dom";
@@ -18,7 +18,7 @@ export function UserInfo() {
   //fetch the users personal data
   const { status, data, refetch, error } = useQuery({
     queryKey: ["userAvatar"],
-    queryFn: () => getAvatar(id),
+    queryFn: () => getUsersInfo(id),
   });
 
   const formatNumber = data
@@ -41,22 +41,9 @@ export function UserInfo() {
           </div>
 
           <div className="= flex items-center justify-evenly space-x-4 py-4 ">
-            <NavLink
-              to={"profile"}
-              className={
-                "hover:text-orangeColor font-semibold transition-all duration-500 "
-              }
-            >
-              Profile
-            </NavLink>
-            <NavLink
-              to={"timeline"}
-              className={
-                "hover:text-orangeColor font-semibold transition-all duration-500"
-              }
-            >
-              Timeline
-            </NavLink>
+            <ProfileNav page={"Profile"} />
+            <ProfileNav page={"Timeline"} />
+            <ProfileNav page={"Explore"} />
           </div>
 
           <UserJoined date={formatNumber} />
@@ -70,6 +57,18 @@ export function UserInfo() {
   );
 }
 
+function ProfileNav({ page }) {
+  return (
+    <NavLink
+      to={page}
+      className={
+        "font-semibold transition-all duration-500 hover:text-orangeColor"
+      }
+    >
+      {page}
+    </NavLink>
+  );
+}
 const ProfilePicture = memo(function ProfilePicture({ avatar }) {
   return (
     <img

@@ -7,6 +7,8 @@ import ProfilePage from "./Pages/ProfilePage";
 import { Toaster } from "react-hot-toast";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import ExplorePage from "./Pages/ExplorePage";
+import UserPage from "./Pages/UserPage";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 0 } },
@@ -28,6 +30,8 @@ function App() {
           >
             <Route path="timeline" element={<TimelinePage />} />
             <Route path="profile" element={<ProfilePage />} />
+            <Route path="explore" element={<ExplorePage />} />
+            <Route path="/:userId" element={<UserPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

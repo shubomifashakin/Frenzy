@@ -37,9 +37,9 @@ export function Timer() {
   });
 
   return (
-    <div className=" flex-collg:items-center flex w-20 lg:justify-center">
+    <div className=" flex w-full flex-col lg:items-end lg:justify-start">
       <p
-        className={`w-full text-center text-lg font-bold ${
+        className={`w-full text-left text-lg font-bold ${
           lessThan1hour ? "text-red-500" : ""
         } ${
           lessThan30mins ? "text-red-600" : ""
