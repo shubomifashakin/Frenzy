@@ -1,12 +1,20 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { userStore } from "../Stores/UserStore";
 
-export function Post({ info, profilePage = false }) {
+export function Post({ info, profilePage = false, isPostPage = false }) {
   const [isShowingImage, setShowImage] = useState(false);
 
-  const { userId, created_at, content, image, username } = info;
+  const {
+    user_id: userId,
+    created_at,
+    content,
+    image,
+    username,
+    id: postId,
+  } = info;
 
+  console.log(info);
   return (
     <div className=" bg-secondaryColor">
       <PostHeader
@@ -16,7 +24,7 @@ export function Post({ info, profilePage = false }) {
         created_at={created_at}
       />
 
-      <PostContent content={content} />
+      <PostContent content={content} isPostPage={isPostPage} postId={postId} />
 
       {image ? (
         <PostImage
@@ -34,27 +42,25 @@ function PostHeader({ created_at, username, userId, profilePage }) {
     return state.user;
   });
 
+  console.log(loggedId === userId);
+
   //if the id of the post is the same thing with the logged in user, then the post is for the user, so show 'You'
   const postUsername = loggedId === userId ? "You" : username;
 
   return (
-    <>
+    <h2 className=" flex items-center justify-between rounded-t-lg border-b border-primaryBgColor  px-2 py-1 font-semibold text-black">
       {!profilePage ? (
         <Link
           to={`/${userId}`}
-          className=" flex items-center justify-between rounded-t-lg border-b border-primaryBgColor  px-2 py-1 font-semibold text-black"
+          className=" transition-all duration-500 hover:text-orangeColor"
         >
-          <span className=" transition-all duration-500 hover:text-orangeColor">
-            {postUsername}
-          </span>
-          <TimeOfPost time={created_at} />
+          {postUsername}
         </Link>
       ) : (
-        <h1 className=" flex cursor-default items-center justify-between rounded-t-lg border-b border-primaryBgColor  px-2 py-1 font-semibold text-black">
-          {username} <TimeOfPost time={created_at} />
-        </h1>
+        <span> {postUsername}</span>
       )}
-    </>
+      <TimeOfPost time={created_at} />
+    </h2>
   );
 }
 
@@ -71,9 +77,22 @@ function TimeOfPost({ time }) {
   );
 }
 
-function PostContent({ content }) {
+function PostContent({ content, postId, isPostPage }) {
+  const navigate = useNavigate();
+
+  function goToPostPage() {
+    if (isPostPage) return;
+    navigate(`/post/${postId}`);
+  }
   return (
-    <p className={`min-h-10  px-2 py-5 font-normal  text-black `}>{content}</p>
+    <p
+      onClick={goToPostPage}
+      className={`min-h-10 ${
+        !isPostPage ? "cursor-pointer" : null
+      }  px-2 py-5 font-normal  text-black `}
+    >
+      {content}
+    </p>
   );
 }
 

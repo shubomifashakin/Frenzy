@@ -1,10 +1,11 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { getPosts, getUsersInfo } from "../Actions/functions";
 import { useQuery } from "@tanstack/react-query";
 import LoadingPosts from "../Components/LoadingPosts";
 import { ErrorLoading } from "../Components/Errors";
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import { Post } from "../Components/Post";
+import { IoChevronBack } from "react-icons/io5";
 
 function UserPage() {
   //get user profile and their posts
@@ -25,7 +26,6 @@ function UserPage() {
   } = useQuery({
     queryKey: ["externalUsersInfo"],
     queryFn: () => getUsersInfo(userId),
-    refetchOnMount: "always",
   });
 
   //fetch the users posts
@@ -49,6 +49,16 @@ function UserPage() {
     refetchPosts();
     refetchUser();
   }
+
+  //anytime the params changes, we render refetch the data
+  //this is caused anytime the user clicks the found accounts in the search bar dropdown
+  useEffect(
+    function () {
+      refetchPosts();
+      refetchUser();
+    },
+    [userId, refetchPosts, refetchUser],
+  );
 
   return (
     <div className="w-full space-y-4  p-5 lg:mt-0 ">
@@ -106,9 +116,9 @@ function UsersInfo({ info }) {
   }).format(new Date(created_at));
 
   return (
-    <div className="w-full bg-orangeLight py-2">
-      <div className=" flex flex-col   items-center justify-between space-y-2 ">
-        <div className="flex h-[200px] w-[200px] items-center justify-center rounded-full ">
+    <div className="relative w-full bg-orangeLight py-2">
+      <div className=" flex flex-col   items-center justify-between space-y-6 py-5">
+        <div className="flex h-1/2 w-[200px] items-center justify-center rounded-full ">
           <ProfilePicture avatar={avatar} />
         </div>
 
@@ -116,6 +126,13 @@ function UsersInfo({ info }) {
 
         <p className="text-center text-xs">Joined {formatNumber}</p>
       </div>
+
+      <Link
+        to={"/profile"}
+        className="absolute left-5 top-5 text-base font-bold transition-all duration-300 hover:text-white"
+      >
+        <IoChevronBack className="text-2xl " />
+      </Link>
     </div>
   );
 }

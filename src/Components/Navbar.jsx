@@ -1,5 +1,5 @@
 import { memo, useContext, useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 
 import { supabase } from "../Helpers/supabase";
 
@@ -242,9 +242,12 @@ const SearchBarDropdown = memo(function SearchBarDropdown({ searchValue }) {
 
 function FoundUser({ user }) {
   return (
-    <span className="h-32 w-full flex-shrink-0 rounded-sm  px-2 py-4 font-semibold text-primaryBgColor transition-all  duration-500 hover:bg-orangeColor">
+    <Link
+      to={`/${user.id}`}
+      className="h-32 w-full flex-shrink-0 rounded-sm  px-2 py-4 font-semibold text-primaryBgColor transition-all  duration-500 hover:bg-orangeColor"
+    >
       {user.username.slice(1, user.username.length - 1)}
-    </span>
+    </Link>
   );
 }
 

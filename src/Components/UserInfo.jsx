@@ -8,10 +8,7 @@ import { memo } from "react";
 
 export function UserInfo() {
   //gets the logged in user info from the store
-  const {
-    id,
-    user_metadata: { userName },
-  } = userStore(function (state) {
+  const { id } = userStore(function (state) {
     return state.user;
   });
 
@@ -37,7 +34,9 @@ export function UserInfo() {
               <ProfilePicture avatar={data.avatar} />
             </div>
 
-            <UserName username={userName} />
+            <UserName
+              username={data.username.slice(1, data.username.length - 1)}
+            />
           </div>
 
           <div className="= flex items-center justify-evenly space-x-4 py-4 ">

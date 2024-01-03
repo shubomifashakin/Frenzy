@@ -6,7 +6,7 @@ export async function getPosts(id) {
   let { data: Posts, error } = await supabase
     .from("Posts")
     .select("*")
-    .eq("userId", id);
+    .eq("user_id", id);
 
   //if there was an error handle it
   if (error?.message) {
@@ -18,7 +18,7 @@ export async function getPosts(id) {
 }
 
 export async function uploadPost(postDetails) {
-  const { image, postContent: content, id: userId, username } = postDetails;
+  const { image, postContent: content, id: user_id, username } = postDetails;
 
   let postInfo;
   let compressedBlob;
@@ -52,7 +52,7 @@ export async function uploadPost(postDetails) {
     const imageUrl = `https://jmfwsnwrjdahhxvtvqgq.supabase.co/storage/v1/object/public/postImages/${imageName}`;
 
     //the post data we want to send to the database
-    postInfo = { image: imageUrl, userId, content, username };
+    postInfo = { image: imageUrl, user_id, content, username };
 
     //send the data to the posts & images to the Table
     const [posts, images] = await Promise.all([
@@ -73,7 +73,7 @@ export async function uploadPost(postDetails) {
   //images are not compulsory to upload, so if the user didnt upload an image
   else {
     //the post data to send to the database
-    postInfo = { userId, content, username };
+    postInfo = { user_id, content, username };
 
     //send the posts data to the table
     const { data, error } = await supabase.from("Posts").insert(postInfo);
@@ -105,4 +105,17 @@ export async function getAllPostsByUsers() {
   }
 
   return Posts;
+}
+
+export async function getSinglePost(postId) {
+  let { data: Posts, error } = await supabase
+    .from("Posts")
+    .select("*")
+    .eq("id", postId);
+
+  if (error?.message) {
+    throw new Error(error.message);
+  }
+
+  return Posts[0];
 }

@@ -9,6 +9,7 @@ import ProtectedRoute from "./Components/ProtectedRoute";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import ExplorePage from "./Pages/ExplorePage";
 import UserPage from "./Pages/UserPage";
+import UserPost from "./Pages/UserPost";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 0 } },
@@ -32,6 +33,7 @@ function App() {
             <Route path="profile" element={<ProfilePage />} />
             <Route path="explore" element={<ExplorePage />} />
             <Route path="/:userId" element={<UserPage />} />
+            <Route path="post/:postId" element={<UserPost />} />
           </Route>
         </Routes>
       </BrowserRouter>
