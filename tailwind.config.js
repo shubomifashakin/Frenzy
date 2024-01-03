@@ -27,9 +27,9 @@ export default {
         tertiaryColor: "#d3d3d3",
 
         sideColor: "#ece0d2",
-        textHover: "#181717",
-        btnColor: "#f45f31",
-        btnHoverColor: "#f45f31c0",
+        btnHover: "#181717",
+        orangeColor: "#f45f31",
+        orangeLight: "#f45f31c0",
       },
     },
   },

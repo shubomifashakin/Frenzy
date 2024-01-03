@@ -3,10 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { supabase } from "../Helpers/supabase";
 
+import { UserContext } from "./AppLayout";
 import { userStore } from "../Stores/UserStore";
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa6";
 import toast from "react-hot-toast";
-import { UserContext } from "./AppLayout";
 
 function Navbar() {
   const {
@@ -30,7 +30,11 @@ function Navbar() {
       }`}
     >
       <SearchBar />
-      <Username>{userName}</Username>
+      <NavItem path={"profile"} logo={true}>
+        Frenzy
+      </NavItem>
+      <NavItem path={"profile"}>{userName}</NavItem>
+      <NavItem path={"timeline"}>Timeline</NavItem>
       <LogOutBtn />
       <Timer />
       <MobileNavTrigger
@@ -51,7 +55,7 @@ const MobileNavTrigger = memo(function MobileNavTrigger({
         e.stopPropagation();
         toggleMobileNav((c) => !c);
       }}
-      className="absolute left-full top-1/2 m-auto  flex h-20 w-10 translate-y-[-50%] cursor-pointer items-center justify-start rounded-br-full rounded-tr-full bg-btnHoverColor text-left sm:h-24 sm:w-12  lg:hidden"
+      className="bg-orangeLight absolute left-full top-1/2  m-auto flex h-20 w-10 translate-y-[-50%] cursor-pointer items-center justify-start rounded-br-full rounded-tr-full text-left sm:h-24 sm:w-12  lg:hidden"
     >
       {mobileNav ? (
         <FaCaretLeft display={"inline"} fontSize={"2rem"} />
@@ -97,9 +101,11 @@ const Timer = memo(function Timer() {
   });
 
   return (
-    <div className="lg:hidden ">
+    <div className="order-4 lg:hidden">
       <p
-        className={` text-lg font-bold ${lessThan1hour ? "text-red-500" : ""} ${
+        className={`text-base font-bold ${
+          lessThan1hour ? "text-red-500" : ""
+        } ${
           lessThan30mins ? "text-red-600" : ""
         } transition-colors duration-500 ease-in-out`}
       >
@@ -119,21 +125,36 @@ const LogOutBtn = memo(function LogOutBtn() {
   return (
     <button
       onClick={logOut}
-      className="text-left font-bold transition-all  duration-300 hover:text-stone-600 lg:order-3 lg:justify-self-end"
+      className="hover:text-orangeColor order-last text-left  font-bold transition-all duration-300 lg:order-3 lg:justify-self-end"
     >
       Log Out
     </button>
   );
 });
 
-const Username = memo(function Username({ children }) {
+const NavItem = memo(function Username({ children, path, logo = false }) {
   return (
-    <Link
-      to={"profile"}
-      className="cursor-pointer font-bold transition-all duration-500 ease-in-out hover:underline lg:order-1 lg:justify-self-start"
-    >
-      {children}
-    </Link>
+    <>
+      {!logo ? (
+        <Link
+          to={path}
+          className={`hover:text-orangeColor cursor-pointer font-bold transition-all duration-500 ease-in-out  ${
+            logo ? "order-1 lg:block" : "order-3 lg:hidden"
+          } lg:justify-self-start`}
+        >
+          {children}
+        </Link>
+      ) : null}
+
+      {logo ? (
+        <p
+          className={`order-1 cursor-default font-bold transition-all duration-500   
+           ease-in-out lg:block lg:justify-self-start`}
+        >
+          {children}
+        </p>
+      ) : null}
+    </>
   );
 });
 
@@ -141,15 +162,15 @@ function SearchBar() {
   const { searchValue, setSearchValue } = useContext(UserContext);
 
   return (
-    <div className="group relative block items-center justify-center lg:order-2 lg:flex lg:h-full lg:w-full ">
+    <div className="group relative order-2 block items-center justify-center lg:order-2 lg:flex lg:h-full lg:w-full ">
       <div className="relative flex w-full items-center border-2 border-black  font-semibold text-primaryBgColor lg:rounded">
         <input
-          className="input-style peer order-2 w-full rounded-none border-none bg-btnColor transition-all duration-500 focus:bg-textHover focus:text-primaryBgColor "
+          className="input-style bg-orangeColor focus:bg-btnHover peer order-2 w-full rounded-none border-none transition-all duration-500 focus:text-primaryBgColor "
           placeholder="username"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
         />
-        <span className="order-1 h-full cursor-default border-r-2 border-black   bg-btnColor p-2 font-bold transition-all duration-500 peer-focus:bg-textHover peer-focus:text-primaryBgColor">
+        <span className="bg-orangeColor peer-focus:bg-btnHover order-1 h-full cursor-default   border-r-2 border-black p-2 font-bold transition-all duration-500 peer-focus:text-primaryBgColor">
           @
         </span>
       </div>
@@ -200,7 +221,7 @@ const SearchBarDropdown = memo(function SearchBarDropdown({ searchValue }) {
 
   return (
     <div
-      className={`absolute left-0 top-full z-50 flex  w-full  flex-shrink-0 flex-col justify-center divide-y overflow-y-scroll bg-textHover  transition-all duration-500 ${
+      className={`bg-btnHover absolute left-0 top-full z-50  flex  w-full flex-shrink-0 flex-col justify-center divide-y overflow-y-scroll  transition-all duration-500 ${
         searchValue.length > 2 ? "block" : "hidden"
       }  lg:max-h-72 lg:min-h-20  `}
     >
@@ -219,7 +240,7 @@ const SearchBarDropdown = memo(function SearchBarDropdown({ searchValue }) {
 
 function FoundUser({ user }) {
   return (
-    <span className="h-32 w-full flex-shrink-0 rounded-sm  px-2 py-4 font-semibold text-primaryBgColor transition-all  duration-500 hover:bg-btnColor">
+    <span className="hover:bg-orangeColor h-32 w-full flex-shrink-0  rounded-sm px-2 py-4 font-semibold text-primaryBgColor  transition-all duration-500">
       {user.username.slice(1, user.username.length - 1)}
     </span>
   );

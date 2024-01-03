@@ -1,0 +1,52 @@
+import { useEffect, useState } from "react";
+import { supabase } from "../Helpers/supabase";
+import { useNavigate } from "react-router-dom";
+
+export function Timer() {
+  const timeHad = 60 * 1000 * 60 * 2;
+  const [timeLeft, setTimeLeft] = useState(timeHad);
+  let hours = Math.floor(timeLeft / 3600000);
+  let minutes = Math.floor((timeLeft % 3600000) / 60000);
+  let seconds = Math.floor((timeLeft % 60000) / 1000);
+
+  const lessThan1hour = timeLeft < 60 * 1000 * 60;
+  const lessThan30mins = timeLeft < 60 * 1000 * 30;
+
+  // Add leading zeros if needed
+  hours = hours < 10 ? "0" + hours : hours;
+  minutes = minutes < 10 ? "0" + minutes : minutes;
+  seconds = seconds < 10 ? "0" + seconds : seconds;
+
+  const navigate = useNavigate();
+
+  async function logOut() {
+    let { error } = await supabase.auth.signOut();
+    navigate("/");
+  }
+
+  useEffect(function () {
+    const intervalId = setInterval(function () {
+      if (timeLeft) {
+        setTimeLeft((c) => c - 1000);
+      } else {
+        logOut();
+      }
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  });
+
+  return (
+    <div className=" flex-collg:items-center flex w-20 lg:justify-center">
+      <p
+        className={`w-full text-center text-lg font-bold ${
+          lessThan1hour ? "text-red-500" : ""
+        } ${
+          lessThan30mins ? "text-red-600" : ""
+        } transition-colors duration-500 ease-in-out`}
+      >
+        {hours}:{minutes}:{seconds}
+      </p>
+    </div>
+  );
+}

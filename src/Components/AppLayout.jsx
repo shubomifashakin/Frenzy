@@ -1,10 +1,13 @@
-import { createContext, useEffect, useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { createContext, useState } from "react";
+import { Outlet } from "react-router-dom";
+
 import Navbar from "./Navbar";
 import PostBtn from "./PostBtn";
 import CreatePosts from "./CreatePosts";
-import { supabase } from "../Helpers/supabase";
 import Sidebars from "./Sidebars";
+import { UserInfo } from "./UserInfo";
+
+import { Timer } from "./Timer";
 
 export const UserContext = createContext(null);
 function AppLayout() {
@@ -15,8 +18,11 @@ function AppLayout() {
   //if we click anywhere on the layout remove the mobilenav and post modal
   function handleLayoutClick(e) {
     e.stopPropagation();
+    //close posts
     toggleCreatePost(false);
+    //close mobile nav
     toggleMobileNav(false);
+    //close search bar
     setSearchValue([]);
   }
 
@@ -38,9 +44,8 @@ function AppLayout() {
         <Navbar />
 
         <Sidebars colNo={1} height={"full"}>
-          <div className="flex  h-3/4 w-full flex-col justify-between space-y-4">
-            <div className="h-1/2  bg-sideColor"></div>
-            <div className="h-1/2  bg-sideColor"></div>
+          <div className="flex w-full flex-col justify-between space-y-4">
+            <UserInfo />
           </div>
 
           <Timer />
@@ -57,55 +62,6 @@ function AppLayout() {
         <PostBtn />
       </div>
     </UserContext.Provider>
-  );
-}
-
-function Timer() {
-  const timeHad = 60 * 1000 * 60 * 2;
-  const [timeLeft, setTimeLeft] = useState(timeHad);
-  let hours = Math.floor(timeLeft / 3600000);
-  let minutes = Math.floor((timeLeft % 3600000) / 60000);
-  let seconds = Math.floor((timeLeft % 60000) / 1000);
-
-  const lessThan1hour = timeLeft < 60 * 1000 * 60;
-  const lessThan30mins = timeLeft < 60 * 1000 * 30;
-
-  // Add leading zeros if needed
-  hours = hours < 10 ? "0" + hours : hours;
-  minutes = minutes < 10 ? "0" + minutes : minutes;
-  seconds = seconds < 10 ? "0" + seconds : seconds;
-
-  const navigate = useNavigate();
-
-  async function logOut() {
-    let { error } = await supabase.auth.signOut();
-    navigate("/");
-  }
-
-  useEffect(function () {
-    const intervalId = setInterval(function () {
-      if (timeLeft) {
-        setTimeLeft((c) => c - 1000);
-      } else {
-        logOut();
-      }
-    }, 1000);
-
-    return () => clearInterval(intervalId);
-  });
-
-  return (
-    <div className=" flex-collg:items-center flex w-20 lg:justify-center">
-      <p
-        className={`w-full text-center text-lg font-bold ${
-          lessThan1hour ? "text-red-500" : ""
-        } ${
-          lessThan30mins ? "text-red-600" : ""
-        } transition-colors duration-500 ease-in-out`}
-      >
-        {hours}:{minutes}:{seconds}
-      </p>
-    </div>
   );
 }
 

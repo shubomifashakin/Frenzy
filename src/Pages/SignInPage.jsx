@@ -137,8 +137,15 @@ function SignUp() {
       //if the users account was successfully created
       toast.success(`A verification email has been sent to ${email}`);
     } catch (error) {
+      console.log(error.message);
       //alert the user
-      toast.error(error.message);
+
+      //check if the error was username already exists one
+      const userNameExists =
+        error.message ===
+        'duplicate key value violates unique constraint "UsersInfo_username_key"';
+
+      toast.error(userNameExists ? "Username is Taken" : error.message);
     }
   }
 
@@ -249,7 +256,7 @@ export const Button = memo(function Button({ children, size = "medium" }) {
         size === "medium" ? "p-3" : ""
       } ${
         size === "small" ? "px-2 py-1" : ""
-      }  border border-btnColor font-semibold text-black ring  ring-btnColor ring-offset-2 transition-all duration-500 ease-in-out hover:border-black  hover:bg-secondaryColor hover:text-textHover hover:ring-offset-4 focus:scale-[0.9] focus:ring-2 focus:ring-secondaryColor focus:ring-offset-2 `}
+      }  border-orangeColor ring-orangeColor hover:text-btnHover border font-semibold  text-black ring ring-offset-2 transition-all duration-500 ease-in-out  hover:border-black hover:bg-secondaryColor hover:ring-offset-4 focus:scale-[0.9] focus:ring-2 focus:ring-secondaryColor focus:ring-offset-2 `}
     >
       {children}
     </button>

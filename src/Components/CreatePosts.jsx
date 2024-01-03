@@ -37,7 +37,7 @@ function CreatePosts() {
       setFile(null);
       setIsDragging(false);
 
-      //clear the post content
+      // clear the post content
       reset();
 
       //close create post container
@@ -131,7 +131,7 @@ function PostContainer({ children }) {
   );
 }
 
-const PostContentArea = memo(function PostContentArea({ register, errors }) {
+function PostContentArea({ register, errors }) {
   return (
     <>
       <InputError>{errors}</InputError>
@@ -148,7 +148,7 @@ const PostContentArea = memo(function PostContentArea({ register, errors }) {
       />
     </>
   );
-});
+}
 
 const DropFile = memo(function DropFile({
   file,

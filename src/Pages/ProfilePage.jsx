@@ -6,6 +6,7 @@ import { userStore } from "../Stores/UserStore";
 import { getPosts } from "../Actions/functions";
 
 import LoadingPosts from "../Components/LoadingPosts";
+import { ErrorLoading } from "../Components/Errors";
 
 function ProfilePage() {
   const { id } = userStore(function (state) {
@@ -13,7 +14,7 @@ function ProfilePage() {
   });
 
   //fetches our posts on mount
-  const { status, data, error } = useQuery({
+  const { status, data, error, refetch } = useQuery({
     queryKey: ["posts"],
     queryFn: () => getPosts(id),
   });
@@ -29,7 +30,9 @@ function ProfilePage() {
         ? reversed.map((post, i) => <Post key={i} info={post} />)
         : null}
 
-      {status === "error" ? <p>{error.message}</p> : null}
+      {status === "error" ? (
+        <ErrorLoading retryFn={refetch} message={error.message} />
+      ) : null}
     </div>
   );
 }

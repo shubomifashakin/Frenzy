@@ -4,7 +4,7 @@
 
 @layer components {
   .input-style {
-    @apply rounded-md border border-btnColor bg-btnColor p-2 font-semibold text-primaryBgColor outline-none transition-all duration-500 ease-in-out placeholder:text-primaryBgColor hover:border-secondaryColor;
+    @apply border-orangeColor bg-orangeColor rounded-md border p-2 font-semibold text-primaryBgColor outline-none transition-all duration-500 ease-in-out placeholder:text-primaryBgColor hover:border-secondaryColor;
   }
 }
 .lds-spinner {
@@ -105,4 +105,8 @@
 * {
   scrollbar-color: #f45f31 transparent;
   scrollbar-width: thin;
+}
+
+.active {
+  color: #f45f31;
 }
