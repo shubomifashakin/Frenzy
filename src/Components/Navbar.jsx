@@ -1,21 +1,31 @@
-import { useEffect, useState } from "react";
+import { memo, useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { supabase } from "../Helpers/supabase";
 
 import { userStore } from "../Stores/UserStore";
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa6";
+import toast from "react-hot-toast";
+import { UserContext } from "./AppLayout";
 
-function Navbar({ mobileNav, toggleMobileNav }) {
+function Navbar() {
   const {
     user_metadata: { userName },
   } = userStore(function (state) {
     return state.user;
   });
+
+  function CloseSearch(e) {
+    e.stopPropagation();
+    setSearchValue([]);
+  }
+
+  const { mobileNav, toggleMobileNav, setSearchValue } =
+    useContext(UserContext);
   return (
     <nav
-      onClick={(e) => e.stopPropagation()}
-      className={`absolute left-0 top-0  z-50  col-span-full row-span-1 flex h-full w-9/12 flex-col space-y-2 border-b border-tertiaryColor bg-primaryBgColor px-2 py-4 transition-all duration-500 ease-in-out md:p-5 lg:relative lg:left-0 lg:z-auto lg:h-auto lg:w-full lg:flex-row lg:items-center lg:justify-between lg:space-y-0 lg:px-5 lg:py-0 ${
+      onClick={CloseSearch}
+      className={`absolute left-0 top-0  z-50  col-span-full row-span-1 flex h-full w-9/12 flex-col space-y-2 border-b border-tertiaryColor bg-primaryBgColor px-2 py-4 transition-all duration-500 ease-in-out md:p-5 lg:relative lg:left-0 lg:grid lg:w-full lg:grid-cols-[1fr_1.5fr_1fr] lg:items-center lg:justify-start  lg:px-5 lg:py-0 ${
         mobileNav ? "left-0" : "left-[-75%]"
       }`}
     >
@@ -31,14 +41,17 @@ function Navbar({ mobileNav, toggleMobileNav }) {
   );
 }
 
-function MobileNavTrigger({ mobileNav, toggleMobileNav }) {
+const MobileNavTrigger = memo(function MobileNavTrigger({
+  mobileNav,
+  toggleMobileNav,
+}) {
   return (
     <div
       onClick={(e) => {
         e.stopPropagation();
         toggleMobileNav((c) => !c);
       }}
-      className="bg-btnHoverColor absolute left-full top-1/2  m-auto flex h-20 w-10 translate-y-[-50%] cursor-pointer items-center justify-start rounded-br-full rounded-tr-full text-left sm:h-24 sm:w-12  lg:hidden"
+      className="absolute left-full top-1/2 m-auto  flex h-20 w-10 translate-y-[-50%] cursor-pointer items-center justify-start rounded-br-full rounded-tr-full bg-btnHoverColor text-left sm:h-24 sm:w-12  lg:hidden"
     >
       {mobileNav ? (
         <FaCaretLeft display={"inline"} fontSize={"2rem"} />
@@ -47,9 +60,9 @@ function MobileNavTrigger({ mobileNav, toggleMobileNav }) {
       )}
     </div>
   );
-}
+});
 
-function Timer() {
+const Timer = memo(function Timer() {
   const timeHad = 60 * 1000 * 60 * 2;
   const [timeLeft, setTimeLeft] = useState(timeHad);
   let hours = Math.floor(timeLeft / 3600000);
@@ -94,9 +107,9 @@ function Timer() {
       </p>
     </div>
   );
-}
+});
 
-function LogOutBtn() {
+const LogOutBtn = memo(function LogOutBtn() {
   const navigate = useNavigate();
   async function logOut() {
     let { error } = await supabase.auth.signOut();
@@ -106,62 +119,109 @@ function LogOutBtn() {
   return (
     <button
       onClick={logOut}
-      className=" text-left font-bold  transition-all duration-300 hover:text-stone-600 lg:order-3"
+      className="text-left font-bold transition-all  duration-300 hover:text-stone-600 lg:order-3 lg:justify-self-end"
     >
       Log Out
     </button>
   );
-}
+});
 
-function Username({ children }) {
+const Username = memo(function Username({ children }) {
   return (
     <Link
       to={"profile"}
-      className="cursor-pointer font-bold transition-all duration-500 ease-in-out hover:underline lg:order-1"
+      className="cursor-pointer font-bold transition-all duration-500 ease-in-out hover:underline lg:order-1 lg:justify-self-start"
     >
       {children}
     </Link>
   );
-}
+});
 
 function SearchBar() {
-  const [searchValue, setSearchValue] = useState("");
+  const { searchValue, setSearchValue } = useContext(UserContext);
 
   return (
-    <div className="group relative block items-center justify-center lg:order-2 lg:flex lg:h-full lg:w-80 ">
+    <div className="group relative block items-center justify-center lg:order-2 lg:flex lg:h-full lg:w-full ">
       <div className="relative flex w-full items-center border-2 border-black  font-semibold text-primaryBgColor lg:rounded">
-        <span className="h-full border-r-2 border-black bg-btnColor p-2 font-bold">
+        <input
+          className="input-style peer order-2 w-full rounded-none border-none bg-btnColor transition-all duration-500 focus:bg-textHover focus:text-primaryBgColor "
+          placeholder="username"
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+        />
+        <span className="order-1 h-full cursor-default border-r-2 border-black   bg-btnColor p-2 font-bold transition-all duration-500 peer-focus:bg-textHover peer-focus:text-primaryBgColor">
           @
         </span>
-        <form className="w-full">
-          <input
-            className="input-style focus:bg-btnHoverColor w-full rounded-none border-none bg-btnColor"
-            placeholder="username"
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-          />
-        </form>
       </div>
       <SearchBarDropdown searchValue={searchValue} />
     </div>
   );
 }
 
-function SearchBarDropdown({ searchValue }) {
+const SearchBarDropdown = memo(function SearchBarDropdown({ searchValue }) {
+  const [foundUsers, setFoundUsers] = useState([]);
   //when the searchbarvalue changes refetch the users
+
+  // //fetch users when the value in the searchbar is at least 3
   useEffect(
     function () {
-      if (searchValue.length > 2) console.log("yowa");
+      const abortSignal = new AbortController();
+
+      async function findUser() {
+        try {
+          let { data: Users, error } = await supabase
+            .from("UsersInfo")
+            .select("*")
+            .ilike("username", `%${searchValue}%`)
+            .abortSignal(abortSignal.signal);
+
+          if (error?.message) throw new Error(error.message);
+
+          setFoundUsers(Users);
+        } catch (err) {
+          if (
+            err.message === `AbortError: The user aborted a request.` ||
+            err.message === `AbortError: signal is aborted without reason`
+          )
+            return;
+
+          toast.error(err.message);
+        }
+      }
+
+      if (searchValue.length > 2) {
+        findUser();
+      }
+
+      return () => abortSignal.abort();
     },
-    [searchValue],
+    [searchValue, setFoundUsers],
   );
 
   return (
     <div
-      className={`absolute left-0 top-full z-50  min-h-20 w-full  scroll-auto border-t-2 border-white bg-btnColor transition-all duration-500 ${
+      className={`absolute left-0 top-full z-50 flex  w-full  flex-shrink-0 flex-col justify-center divide-y overflow-y-scroll bg-textHover  transition-all duration-500 ${
         searchValue.length > 2 ? "block" : "hidden"
-      }  lg:max-h-60 lg:min-h-20  `}
-    ></div>
+      }  lg:max-h-72 lg:min-h-20  `}
+    >
+      {!foundUsers.length ? (
+        <p className="text-center font-semibold text-primaryBgColor">
+          No users found
+        </p>
+      ) : null}
+
+      {foundUsers.length
+        ? foundUsers.map((user, i) => <FoundUser user={user} key={i} />)
+        : null}
+    </div>
+  );
+});
+
+function FoundUser({ user }) {
+  return (
+    <span className="h-32 w-full flex-shrink-0 rounded-sm  px-2 py-4 font-semibold text-primaryBgColor transition-all  duration-500 hover:bg-btnColor">
+      {user.username.slice(1, user.username.length - 1)}
+    </span>
   );
 }
 

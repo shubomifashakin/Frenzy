@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useContext, useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -8,8 +8,10 @@ import InputError from "./InputError";
 
 import { uploadPost } from "../Actions/functions";
 import { userStore } from "../Stores/UserStore";
+import { UserContext } from "./AppLayout";
 
-function CreatePosts({ isCreatePost, toggleCreatePost }) {
+function CreatePosts() {
+  const { isCreatePost, toggleCreatePost } = useContext(UserContext);
   const [isDragging, setIsDragging] = useState(false);
   const [file, setFile] = useState(null);
 
@@ -116,7 +118,8 @@ function CreatePosts({ isCreatePost, toggleCreatePost }) {
   );
 }
 
-function PostContainer({ isCreatePost, children }) {
+function PostContainer({ children }) {
+  const { isCreatePost } = useContext(UserContext);
   return (
     <div
       className={`animate-flash ease-in-out  ${
@@ -128,7 +131,7 @@ function PostContainer({ isCreatePost, children }) {
   );
 }
 
-function PostContentArea({ register, errors }) {
+const PostContentArea = memo(function PostContentArea({ register, errors }) {
   return (
     <>
       <InputError>{errors}</InputError>
@@ -145,9 +148,14 @@ function PostContentArea({ register, errors }) {
       />
     </>
   );
-}
+});
 
-function DropFile({ file, setFile, setIsDragging, isDragging }) {
+const DropFile = memo(function DropFile({
+  file,
+  setFile,
+  setIsDragging,
+  isDragging,
+}) {
   function handleDragOver(e) {
     setIsDragging(true);
   }
@@ -204,7 +212,7 @@ function DropFile({ file, setFile, setIsDragging, isDragging }) {
       </p>
     </div>
   );
-}
+});
 
 function TimeOfPost() {
   const [date, setDate] = useState(new Date());

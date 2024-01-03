@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import PostBtn from "./PostBtn";
@@ -6,49 +6,57 @@ import CreatePosts from "./CreatePosts";
 import { supabase } from "../Helpers/supabase";
 import Sidebars from "./Sidebars";
 
+export const UserContext = createContext(null);
 function AppLayout() {
   const [mobileNav, toggleMobileNav] = useState(false);
   const [isCreatePost, toggleCreatePost] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
   //if we click anywhere on the layout remove the mobilenav and post modal
   function handleLayoutClick(e) {
     e.stopPropagation();
     toggleCreatePost(false);
     toggleMobileNav(false);
+    setSearchValue([]);
   }
 
   return (
-    <div
-      onClick={handleLayoutClick}
-      className="group relative h-dvh bg-primaryBgColor lg:grid lg:grid-cols-[1fr_1.5fr_1fr] lg:grid-rows-[0.35fr_3fr] 2xl:grid-rows-[0.2fr_2fr]"
+    <UserContext.Provider
+      value={{
+        mobileNav,
+        isCreatePost,
+        toggleCreatePost,
+        toggleMobileNav,
+        searchValue,
+        setSearchValue,
+      }}
     >
-      <Navbar mobileNav={mobileNav} toggleMobileNav={toggleMobileNav} />
+      <div
+        onClick={handleLayoutClick}
+        className="group relative h-dvh bg-primaryBgColor lg:grid lg:grid-cols-[1fr_1.5fr_1fr] lg:grid-rows-[0.35fr_3fr] 2xl:grid-rows-[0.2fr_2fr]"
+      >
+        <Navbar />
 
-      <Sidebars colNo={1} height={"full"}>
-        <div className="flex  h-3/4 w-full flex-col justify-between space-y-4">
-          <div className="h-1/2  bg-sideColor"></div>
-          <div className="h-1/2  bg-sideColor"></div>
-        </div>
+        <Sidebars colNo={1} height={"full"}>
+          <div className="flex  h-3/4 w-full flex-col justify-between space-y-4">
+            <div className="h-1/2  bg-sideColor"></div>
+            <div className="h-1/2  bg-sideColor"></div>
+          </div>
 
-        <Timer />
-      </Sidebars>
+          <Timer />
+        </Sidebars>
 
-      <main className=" col-start-2 h-full overflow-auto">
-        <Outlet />
-      </main>
+        <main className=" col-start-2  h-full  overflow-auto border-tertiaryColor lg:border-x">
+          <Outlet />
+        </main>
 
-      <Sidebars colNo={3} height={"full"} sideColor={true} />
+        <Sidebars colNo={3} height={"full"} sideColor={true} />
 
-      <CreatePosts
-        isCreatePost={isCreatePost}
-        toggleCreatePost={toggleCreatePost}
-      />
+        <CreatePosts />
 
-      <PostBtn
-        toggleCreatePost={toggleCreatePost}
-        toggleMobileNav={toggleMobileNav}
-      />
-    </div>
+        <PostBtn />
+      </div>
+    </UserContext.Provider>
   );
 }
 

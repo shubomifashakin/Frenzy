@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { supabase } from "../Helpers/supabase";
 import { useNavigate } from "react-router-dom";
@@ -35,7 +35,7 @@ function SignInPage() {
   );
 
   return hasExpired ? (
-    <div className="bg-primaryBgColor h-dvh px-8 py-2 md:px-9 md:py-[2rem]">
+    <div className="h-dvh bg-primaryBgColor px-8 py-2 md:px-9 md:py-[2rem]">
       <div className="flex h-full flex-col items-center justify-center gap-5">
         <p className="flex animate-flash items-center font-semibold text-black">
           <CheckBox checked={checked} setChecked={setChecked} />
@@ -242,19 +242,19 @@ function InputGroup({ label, children, errors }) {
   );
 }
 
-export function Button({ children, size = "medium" }) {
+export const Button = memo(function Button({ children, size = "medium" }) {
   return (
     <button
       className={` rounded-md bg-secondaryColor ${
         size === "medium" ? "p-3" : ""
       } ${
         size === "small" ? "px-2 py-1" : ""
-      }  ring-btnColor hover:text-textHover border-btnColor border font-semibold  text-black ring ring-offset-2 transition-all duration-500 ease-in-out  hover:border-black hover:bg-secondaryColor hover:ring-offset-4 focus:scale-[0.9] focus:ring-2 focus:ring-secondaryColor focus:ring-offset-2 `}
+      }  border border-btnColor font-semibold text-black ring  ring-btnColor ring-offset-2 transition-all duration-500 ease-in-out hover:border-black  hover:bg-secondaryColor hover:text-textHover hover:ring-offset-4 focus:scale-[0.9] focus:ring-2 focus:ring-secondaryColor focus:ring-offset-2 `}
     >
       {children}
     </button>
   );
-}
+});
 
 function Header({ children }) {
   return (

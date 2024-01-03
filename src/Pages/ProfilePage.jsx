@@ -22,7 +22,7 @@ function ProfilePage() {
   const reversed = data?.slice(0)?.reverse();
 
   return (
-    <div className="w-full space-y-4 border-tertiaryColor p-5 lg:mt-0  lg:border-x">
+    <div className="w-full space-y-4  p-5 lg:mt-0 ">
       {status === "pending" ? <LoadingPosts /> : null}
 
       {status === "success"

@@ -1,11 +1,17 @@
+import { useContext } from "react";
 import { IoIosSend } from "react-icons/io";
+import { UserContext } from "./AppLayout";
 
-function PostBtn({ toggleCreatePost, toggleMobileNav }) {
+function PostBtn() {
+  const { toggleCreatePost, toggleMobileNav, setSearchValue } =
+    useContext(UserContext);
+
   function handleTogglePost(e) {
     e.stopPropagation();
     toggleCreatePost((c) => !c);
     //if the mobile nav is open close it
     toggleMobileNav(false);
+    setSearchValue([]);
   }
 
   return (
