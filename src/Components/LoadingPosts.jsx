@@ -1,10 +1,9 @@
-function LoadingPosts() {
+function LoadingPosts({ numOfLoaders = 3 }) {
   return (
     <div className="flex h-full w-full animate-flasInfinite flex-col justify-between space-y-4">
-      <Post />
-      <Post />
-      <Post />
-      <Post />
+      {Array.from({ length: numOfLoaders }, (_, index) => (
+        <Post key={index} />
+      ))}
     </div>
   );
 }

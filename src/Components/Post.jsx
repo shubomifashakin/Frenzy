@@ -14,7 +14,6 @@ export function Post({ info, profilePage = false, isPostPage = false }) {
     id: postId,
   } = info;
 
-  console.log(info);
   return (
     <div className=" bg-secondaryColor">
       <PostHeader
@@ -41,8 +40,6 @@ function PostHeader({ created_at, username, userId, profilePage }) {
   const { id: loggedId } = userStore(function (state) {
     return state.user;
   });
-
-  console.log(loggedId === userId);
 
   //if the id of the post is the same thing with the logged in user, then the post is for the user, so show 'You'
   const postUsername = loggedId === userId ? "You" : username;

@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { CheckBox } from "../Components/CheckBox";
 import InputError from "../Components/InputError";
 import { userStore } from "../Stores/UserStore";
+import { Button } from "../Components/Button";
 
 function SignInPage() {
   const [checked, setChecked] = useState(false);
@@ -248,20 +249,6 @@ function InputGroup({ label, children, errors }) {
     </div>
   );
 }
-
-export const Button = memo(function Button({ children, size = "medium" }) {
-  return (
-    <button
-      className={` rounded-md bg-secondaryColor ${
-        size === "medium" ? "p-3" : ""
-      } ${
-        size === "small" ? "px-2 py-1" : ""
-      }  border-orangeColor ring-orangeColor hover:text-btnHover border font-semibold  text-black ring ring-offset-2 transition-all duration-500 ease-in-out  hover:border-black hover:bg-secondaryColor hover:ring-offset-4 focus:scale-[0.9] focus:ring-2 focus:ring-secondaryColor focus:ring-offset-2 `}
-    >
-      {children}
-    </button>
-  );
-});
 
 function Header({ children }) {
   return (

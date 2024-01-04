@@ -8,7 +8,15 @@ import { ErrorLoading } from "../Components/Errors";
 function UserPost() {
   const { postId } = useParams();
   console.log(postId);
-  const { isFetching, isLoading, error, data, isFetched, refetch } = useQuery({
+  const {
+    isFetching,
+    isLoading,
+    error,
+    data,
+    isFetched,
+    refetch,
+    isRefetching,
+  } = useQuery({
     queryKey: ["clickedPost"],
     queryFn: () => getSinglePost(postId),
     refetchOnWindowFocus: false,
@@ -16,9 +24,11 @@ function UserPost() {
 
   return (
     <div className="w-full space-y-4  p-5 lg:mt-0 ">
-      {isFetching || isLoading ? <LoadingPosts /> : null}
+      {isFetching || isLoading || isRefetching ? (
+        <LoadingPosts numOfLoaders={1} />
+      ) : null}
 
-      {isFetched && !isLoading && !error ? (
+      {isFetched && !isLoading && !isRefetching && !error ? (
         <div>
           <Post info={data} isPostPage={true} />
           <Link

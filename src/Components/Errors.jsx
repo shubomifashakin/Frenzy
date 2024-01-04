@@ -1,4 +1,4 @@
-import { Button } from "../Pages/SignInPage";
+import { Button } from "./Button";
 
 export function ErrorLoading({ retryFn, message }) {
   function HandleSubmit(e) {

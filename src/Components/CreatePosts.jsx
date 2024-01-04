@@ -3,12 +3,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
-import { Button } from "../Pages/SignInPage";
 import InputError from "./InputError";
 
 import { uploadPost } from "../Actions/functions";
 import { userStore } from "../Stores/UserStore";
 import { UserContext } from "./AppLayout";
+import { Button } from "./Button";
 
 function CreatePosts() {
   const { isCreatePost, toggleCreatePost } = useContext(UserContext);
