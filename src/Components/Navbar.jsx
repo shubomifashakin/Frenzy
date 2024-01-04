@@ -26,7 +26,7 @@ function Navbar() {
   return (
     <nav
       onClick={CloseSearch}
-      className={`absolute left-0 top-0  z-50  col-span-full row-span-1 flex h-full w-9/12 flex-col space-y-2 border-b border-tertiaryColor bg-primaryBgColor px-2 py-4 transition-all duration-500 ease-in-out md:p-5 lg:relative lg:left-0 lg:grid lg:w-full lg:grid-cols-[1fr_1.5fr_1fr] lg:items-center lg:justify-start  lg:px-5 lg:py-0 ${
+      className={`absolute left-0 top-0  z-50  col-span-full row-span-1 flex h-full w-9/12 flex-col space-y-4 border-b border-tertiaryColor bg-primaryBgColor px-2 py-4 transition-all duration-500 ease-in-out md:p-5 lg:relative lg:left-0 lg:grid lg:w-full lg:grid-cols-[1fr_1.5fr_1fr] lg:items-center lg:justify-start lg:space-y-2  lg:px-5 lg:py-0 ${
         mobileNav ? "left-0" : "left-[-75%]"
       }`}
     >
@@ -105,7 +105,7 @@ const Timer = memo(function Timer() {
   return (
     <div className="order-4 lg:hidden">
       <p
-        className={`text-base font-bold ${
+        className={` text-2xl font-bold md:text-3xl lg:text-base ${
           lessThan1hour ? "text-red-500" : ""
         } ${
           lessThan30mins ? "text-red-600" : ""
@@ -127,7 +127,7 @@ const LogOutBtn = memo(function LogOutBtn() {
   return (
     <button
       onClick={logOut}
-      className="order-last text-left font-bold  transition-all duration-300 hover:text-orangeColor lg:order-3 lg:justify-self-end"
+      className="order-last text-left text-2xl font-bold transition-all  duration-300 hover:text-orangeColor md:text-3xl lg:order-3 lg:justify-self-end lg:text-base"
     >
       Log Out
     </button>
@@ -140,7 +140,7 @@ const NavItem = memo(function Username({ children, path, logo = false }) {
       {!logo ? (
         <NavLink
           to={path}
-          className={`cursor-pointer font-bold transition-all duration-500 ease-in-out hover:text-orangeColor  ${
+          className={`cursor-pointer text-2xl font-bold transition-all duration-500 ease-in-out hover:text-orangeColor md:text-3xl lg:text-base ${
             logo ? "order-1 lg:block" : "order-3 lg:hidden"
           } lg:justify-self-start`}
         >
@@ -167,12 +167,12 @@ function SearchBar() {
     <div className="group relative order-2 block items-center justify-center lg:order-2 lg:flex lg:h-full lg:w-full ">
       <div className="relative flex w-full items-center border-2 border-black  font-semibold text-primaryBgColor lg:rounded">
         <input
-          className="input-style peer order-2 w-full rounded-none border-none bg-orangeColor transition-all duration-500 focus:bg-btnHover focus:text-primaryBgColor "
+          className="input-style peer order-2 w-full rounded-none border-none bg-orangeColor transition-all duration-500 focus:bg-btnHover focus:text-primaryBgColor md:py-4 lg:p-2 "
           placeholder="username"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
         />
-        <span className="order-1 h-full cursor-default border-r-2 border-black   bg-orangeColor p-2 font-bold transition-all duration-500 peer-focus:bg-btnHover peer-focus:text-primaryBgColor">
+        <span className="order-1 h-full cursor-default border-r-2 border-black bg-orangeColor  p-2 font-bold transition-all duration-500 peer-focus:bg-btnHover peer-focus:text-primaryBgColor md:py-4 lg:p-2">
           @
         </span>
       </div>
