@@ -78,6 +78,8 @@ function UserPage() {
       !userHasError &&
       !postsHasError &&
       !userIsLoading &&
+      !postsIsRefetching &&
+      !userIsRefetching &&
       !postsIsLoading ? (
         <>
           <UsersInfo info={userData} />
@@ -109,8 +111,9 @@ function UserPage() {
 export default UserPage;
 
 function UsersInfo({ info }) {
-  const { username, avatar, created_at } = info;
+  const { avatar, created_at } = info;
 
+  const username = info.username.replaceAll('"', "");
   const formatNumber = Intl.DateTimeFormat(navigator.language, {
     dateStyle: "medium",
   }).format(new Date(created_at));
@@ -122,7 +125,7 @@ function UsersInfo({ info }) {
           <ProfilePicture avatar={avatar} />
         </div>
 
-        <UserName username={username.slice(1, username.length - 1)} />
+        <UserName username={username} />
 
         <p className="text-center text-xs">Joined {formatNumber}</p>
       </div>

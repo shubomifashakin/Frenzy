@@ -1,4 +1,11 @@
-function Sidebars({ colNo, height = "small", children, sideColor = false }) {
+import { memo } from "react";
+
+const Sidebars = memo(function Sidebars({
+  colNo,
+  height = "small",
+  children,
+  sideColor = false,
+}) {
   return (
     <div className={`hidden lg:block col-start-${colNo} row-span-2 p-5`}>
       <div
@@ -16,6 +23,5 @@ function Sidebars({ colNo, height = "small", children, sideColor = false }) {
       </div>
     </div>
   );
-}
-
+});
 export default Sidebars;

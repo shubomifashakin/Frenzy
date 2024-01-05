@@ -1,18 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { userStore } from "../Stores/UserStore";
 
 export function Post({ info, profilePage = false, isPostPage = false }) {
   const [isShowingImage, setShowImage] = useState(false);
 
-  const {
-    user_id: userId,
-    created_at,
-    content,
-    image,
-    username,
-    id: postId,
-  } = info;
+  const { user_id: userId, created_at, content, image, id: postId } = info;
+
+  //we trim the username because it is shipped with quotes "username"
+  const username = info.username.replaceAll('"', "");
 
   return (
     <div className=" bg-secondaryColor">
@@ -37,16 +32,17 @@ export function Post({ info, profilePage = false, isPostPage = false }) {
 }
 
 function PostHeader({ created_at, username, userId, profilePage }) {
-  const { id: loggedId } = userStore(function (state) {
-    return state.user;
-  });
+  //get the id of the user thats logged in
+  const {
+    user: { id: loggedId },
+  } = JSON.parse(localStorage.getItem("sb-jmfwsnwrjdahhxvtvqgq-auth-token"));
 
   //if the id of the post is the same thing with the logged in user, then the post is for the user, so show 'You'
   const postUsername = loggedId === userId ? "You" : username;
 
   return (
     <h2 className=" flex items-center justify-between rounded-t-lg border-b border-primaryBgColor  px-2 py-1 font-semibold text-black">
-      {!profilePage ? (
+      {loggedId !== userId ? (
         <Link
           to={`/${userId}`}
           className=" transition-all duration-500 hover:text-orangeColor"
@@ -105,7 +101,7 @@ function PostImage({ image, isShowingImage, setShowImage }) {
       </div>
 
       <span
-        className="block cursor-pointer  border-t border-primaryBgColor  py-1 text-center text-xs font-semibold text-stone-800  transition-all duration-300 hover:py-1.5 hover:text-stone-500"
+        className="block cursor-pointer  border-t border-primaryBgColor  py-1 text-center text-xs font-semibold text-stone-800  transition-all duration-300 hover:py-1.5 hover:text-orangeLight"
         onClick={() => setShowImage((c) => !c)}
       >
         {isShowingImage ? "Hide" : "Show"} Image

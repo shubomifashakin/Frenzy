@@ -1,25 +1,29 @@
-import { memo, useContext, useEffect, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { memo, useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
 import InputError from "./InputError";
 
-import { uploadPost } from "../Actions/functions";
-import { userStore } from "../Stores/UserStore";
-import { UserContext } from "./AppLayout";
+import { getUsersInfo, uploadPost } from "../Actions/functions";
 import { Button } from "./Button";
 
-function CreatePosts() {
-  const { isCreatePost, toggleCreatePost } = useContext(UserContext);
+export const CreatePosts = memo(function CreatePosts({
+  isCreatePost,
+  toggleCreatePost,
+}) {
   const [isDragging, setIsDragging] = useState(false);
   const [file, setFile] = useState(null);
 
+  //gets the id  from the local storage
   const {
-    id,
-    user_metadata: { userName: username },
-  } = userStore(function (state) {
-    return state.user;
+    user: { id },
+  } = JSON.parse(localStorage.getItem("sb-jmfwsnwrjdahhxvtvqgq-auth-token"));
+
+  //fetch the users personal data with their id
+  const { status, data } = useQuery({
+    queryKey: ["userinfo"],
+    queryFn: () => getUsersInfo(id),
   });
 
   const { register, handleSubmit, formState, reset } = useForm();
@@ -27,7 +31,7 @@ function CreatePosts() {
 
   const queryClient = useQueryClient();
 
-  const { mutate } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: uploadPost,
     onSuccess: function () {
       toast.success("Post Was Sent");
@@ -48,6 +52,8 @@ function CreatePosts() {
       toast.error(error.message);
     },
   });
+
+  const username = data?.username.slice(1, data.username.length - 1);
 
   //when the escape key is pressed close the create post element
   function HandleEscape(e) {
@@ -83,43 +89,49 @@ function CreatePosts() {
   }, []);
 
   return (
-    <PostContainer isCreatePost={isCreatePost}>
-      <div
-        onClick={(e) => e.stopPropagation()}
-        onKeyDown={HandleEscape}
-        className={` w-4/5  rounded-md border-2 border-secondaryColor bg-primaryBgColor text-xl font-bold  lg:w-1/2`}
-      >
-        <h2 className="flex items-center justify-between border-2 border-secondaryColor bg-secondaryColor p-3  text-lg outline-none">
-          New Post <TimeOfPost />
-        </h2>
+    <>
+      {/**only show the modal if the user was fetched */}
+      {status === "success" ? (
+        <PostContainer isCreatePost={isCreatePost}>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={HandleEscape}
+            className={` w-4/5  rounded-md border-2 border-secondaryColor bg-primaryBgColor text-xl font-bold  lg:w-1/2`}
+          >
+            <h2 className="flex items-center justify-between border-2 border-secondaryColor bg-secondaryColor p-3  text-lg outline-none">
+              New Post
+            </h2>
 
-        <form
-          onSubmit={handleSubmit(submitPost)}
-          className={`min-h-32 px-4 py-4 transition-all duration-500 `}
-        >
-          <PostContentArea
-            register={register}
-            errors={errors?.postContent?.message}
-          />
+            <form
+              onSubmit={handleSubmit(submitPost)}
+              className={`min-h-32 px-4 py-4 transition-all duration-500 `}
+            >
+              <PostContentArea
+                register={register}
+                errors={errors?.postContent?.message}
+              />
 
-          <DropFile
-            file={file}
-            setFile={setFile}
-            setIsDragging={setIsDragging}
-            isDragging={isDragging}
-          />
+              <DropFile
+                file={file}
+                setFile={setFile}
+                setIsDragging={setIsDragging}
+                isDragging={isDragging}
+              />
 
-          <div className="flex justify-end">
-            <Button size="small">Post</Button>
+              <div className="flex justify-end">
+                <Button size="small" isPending={isPending}>
+                  Post
+                </Button>
+              </div>
+            </form>
           </div>
-        </form>
-      </div>
-    </PostContainer>
+        </PostContainer>
+      ) : null}
+    </>
   );
-}
+});
 
-function PostContainer({ children }) {
-  const { isCreatePost } = useContext(UserContext);
+function PostContainer({ children, isCreatePost }) {
   return (
     <div
       className={`animate-flash ease-in-out  ${

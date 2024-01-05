@@ -1,12 +1,13 @@
-import { memo, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { supabase } from "../Helpers/supabase";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { CheckBox } from "../Components/CheckBox";
 import InputError from "../Components/InputError";
 import { userStore } from "../Stores/UserStore";
 import { Button } from "../Components/Button";
+import { useMutation } from "@tanstack/react-query";
+import { logInUser, signUpUser } from "../Actions/functions";
 
 function SignInPage() {
   const [checked, setChecked] = useState(false);
@@ -25,6 +26,7 @@ function SignInPage() {
     ? Date.now() > Number(loggedInfo?.expires_at + "000")
     : true;
 
+  //if the token in the storage had not expired when the user navigated to the log in page, redirect back to profile
   useEffect(
     function () {
       if (!hasExpired) {
@@ -54,40 +56,24 @@ function LogIn() {
   const { handleSubmit, register, formState } = useForm();
   const { errors } = formState;
 
-  const setUser = userStore(function (state) {
-    return state.setUser;
-  });
-
   const navigate = useNavigate();
 
-  async function handleLogIn(userInfo) {
-    try {
-      //log in with the info passed
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.signInWithPassword(userInfo);
-
-      //if there was an error logging in, show it
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      //set the user in the global user state
-      setUser(user);
-
-      //if we successfully logged in, go to the timeline page
+  const { mutate, isPending } = useMutation({
+    mutationFn: logInUser,
+    onSuccess: () => {
       navigate(`profile`);
-    } catch (error) {
+    },
+
+    onError: (errors) => {
       //alert the user
-      toast.error(error.message);
-    }
-  }
+      toast.error(errors.message);
+    },
+  });
 
   return (
     <div className="min-h-[350px] w-full animate-flash md:min-h-[400px] md:w-1/2 ">
       <Header>Log In</Header>
-      <form onSubmit={handleSubmit(handleLogIn)}>
+      <form onSubmit={handleSubmit(mutate)}>
         <InputGroup label={"Email"} errors={errors?.email?.message}>
           <input
             className="input-style "
@@ -108,54 +94,44 @@ function LogIn() {
           />
         </InputGroup>
 
-        <Button>Log In</Button>
+        <Button isPending={isPending}>Log In</Button>
       </form>
     </div>
   );
 }
 
 function SignUp() {
-  const { handleSubmit, register, getValues, formState } = useForm();
+  const { handleSubmit, register, getValues, formState, reset } = useForm();
   const { errors } = formState;
 
-  async function handleSignUp(userInfo) {
-    const { email, password, userName } = userInfo;
-
-    try {
-      //create the user with these details
-      const { data: createdUser, error: createError } =
-        await supabase.auth.signUp({
-          email,
-          password,
-          options: { data: { userName } },
-        });
-
-      //if there was an error signing up
-      if (createError?.message) {
-        throw new Error(createError.message);
-      }
-
+  const { mutate, isPending } = useMutation({
+    mutationFn: signUpUser,
+    onSuccess: () => {
       //if the users account was successfully created
-      toast.success(`A verification email has been sent to ${email}`);
-    } catch (error) {
-      console.log(error.message);
-      //alert the user
+      toast.success(
+        `A verification email has been sent to ${getValues().email}`,
 
+        //reset the form
+        reset(),
+      );
+    },
+
+    onError: (errors) => {
       //check if the error was username already exists one
       const userNameExists =
-        error.message ===
+        errors.message ===
         'duplicate key value violates unique constraint "UsersInfo_username_key"';
 
-      toast.error(userNameExists ? "Username is Taken" : error.message);
-    }
-  }
+      toast.error(userNameExists ? "Username is Taken" : errors.message);
+    },
+  });
 
   return (
     <div className="min-h-[350px] w-full animate-flash md:min-h-[400px] md:w-1/2 ">
       <Header>Sign Up</Header>
 
-      <form className="w-full gap-4 " onSubmit={handleSubmit(handleSignUp)}>
-        <InputGroup label={"Username"} errors={errors?.username?.message}>
+      <form className="w-full gap-4 " onSubmit={handleSubmit(mutate)}>
+        <InputGroup label={"Username"} errors={errors?.userName?.message}>
           <input
             type="text"
             className="input-style"
@@ -232,7 +208,7 @@ function SignUp() {
           </InputGroup>
         </div>
 
-        <Button>Sign Up</Button>
+        <Button isPending={isPending}>Sign Up</Button>
       </form>
     </div>
   );

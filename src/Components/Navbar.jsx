@@ -4,23 +4,16 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { supabase } from "../Helpers/supabase";
 
 import { UserContext } from "./AppLayout";
-import { userStore } from "../Stores/UserStore";
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa6";
 import toast from "react-hot-toast";
 
 function Navbar() {
-  const {
-    user_metadata: { userName },
-  } = userStore(function (state) {
-    return state.user;
-  });
-
   function CloseSearch(e) {
     e.stopPropagation();
     setSearchValue([]);
   }
 
-  const { mobileNav, toggleMobileNav, setSearchValue } =
+  const { mobileNav, toggleMobileNav, setSearchValue, searchValue } =
     useContext(UserContext);
 
   return (
@@ -30,15 +23,15 @@ function Navbar() {
         mobileNav ? "left-0" : "left-[-75%]"
       }`}
     >
-      <SearchBar />
+      <SearchBar searchValue={searchValue} setSearchValue={setSearchValue} />
       <NavItem path={"profile"} logo={true}>
         Frenzy
       </NavItem>
-      <NavItem path={"profile"}>{userName}</NavItem>
+      <NavItem path={"profile"}>Profile</NavItem>
       <NavItem path={"timeline"}>Timeline</NavItem>
       <NavItem path={"explore"}>Explore</NavItem>
       <LogOutBtn />
-      <Timer />
+      {/* <Timer /> */}
       <MobileNavTrigger
         mobileNav={mobileNav}
         toggleMobileNav={toggleMobileNav}
@@ -160,12 +153,10 @@ const NavItem = memo(function Username({ children, path, logo = false }) {
   );
 });
 
-function SearchBar() {
-  const { searchValue, setSearchValue } = useContext(UserContext);
-
+const SearchBar = memo(function SearchBar({ searchValue, setSearchValue }) {
   return (
     <div className="group relative order-2 block items-center justify-center lg:order-2 lg:flex lg:h-full lg:w-full ">
-      <div className="relative flex w-full items-center border-2 border-black  font-semibold text-primaryBgColor lg:rounded">
+      <div className="relative flex w-full items-center border-2 border-black bg-orangeColor  font-semibold text-primaryBgColor lg:rounded">
         <input
           className="input-style peer order-2 w-full rounded-none border-none bg-orangeColor transition-all duration-500 focus:bg-btnHover focus:text-primaryBgColor md:py-4 lg:p-2 "
           placeholder="username"
@@ -179,10 +170,11 @@ function SearchBar() {
       <SearchBarDropdown searchValue={searchValue} />
     </div>
   );
-}
+});
 
 const SearchBarDropdown = memo(function SearchBarDropdown({ searchValue }) {
   const [foundUsers, setFoundUsers] = useState([]);
+  const [searching, setSearching] = useState(false);
   //when the searchbarvalue changes refetch the users
 
   // //fetch users when the value in the searchbar is at least 3
@@ -192,6 +184,7 @@ const SearchBarDropdown = memo(function SearchBarDropdown({ searchValue }) {
 
       async function findUser() {
         try {
+          setSearching(true);
           let { data: Users, error } = await supabase
             .from("UsersInfo")
             .select("*")
@@ -201,7 +194,9 @@ const SearchBarDropdown = memo(function SearchBarDropdown({ searchValue }) {
           if (error?.message) throw new Error(error.message);
 
           setFoundUsers(Users);
+          setSearching(false);
         } catch (err) {
+          setSearching(false);
           if (
             err.message === `AbortError: The user aborted a request.` ||
             err.message === `AbortError: signal is aborted without reason`
@@ -227,15 +222,21 @@ const SearchBarDropdown = memo(function SearchBarDropdown({ searchValue }) {
         searchValue.length > 2 ? "block" : "hidden"
       }  lg:max-h-72 lg:min-h-20  `}
     >
-      {!foundUsers.length ? (
+      {!foundUsers.length && !searching ? (
         <p className="text-center font-semibold text-primaryBgColor">
           No users found
         </p>
       ) : null}
 
-      {foundUsers.length
+      {foundUsers.length && !searching
         ? foundUsers.map((user, i) => <FoundUser user={user} key={i} />)
         : null}
+
+      {searching ? (
+        <p className="text-center font-semibold text-primaryBgColor">
+          Searching
+        </p>
+      ) : null}
     </div>
   );
 });

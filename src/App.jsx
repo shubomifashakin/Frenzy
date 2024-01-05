@@ -47,7 +47,7 @@ function App() {
         <Toaster
           toastOptions={{
             success: {
-              duration: 8 * 1000,
+              duration: 1 * 1000,
               style: {
                 background: "#abf7b1",
               },

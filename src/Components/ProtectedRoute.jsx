@@ -1,22 +1,27 @@
-import { useNavigate } from "react-router-dom";
-import { userStore } from "../Stores/UserStore";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
 function ProtectedRoute({ children }) {
-  const user = userStore(function (state) {
-    return state.user;
-  });
-
   const navigate = useNavigate();
+
+  const loggedInfo = JSON.parse(
+    localStorage.getItem("sb-jmfwsnwrjdahhxvtvqgq-auth-token"),
+  );
+
+  //if there was no logged Info we assume the data has expired
+  //i added 3 zeros to it because supabase date.now() is wrong
+  const hasExpired = loggedInfo
+    ? Date.now() > Number(loggedInfo?.expires_at + "000")
+    : true;
 
   useEffect(
     function () {
-      if (user?.aud !== "authenticated") navigate("/");
+      if (hasExpired) navigate("/");
     },
-    [user, navigate],
+    [hasExpired, navigate],
   );
 
-  return user ? children : null;
+  return !hasExpired ? children : <Link to={"/"}>Back to Login</Link>;
 }
 
 export default ProtectedRoute;

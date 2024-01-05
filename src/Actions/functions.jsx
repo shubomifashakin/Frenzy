@@ -1,6 +1,49 @@
 import Compressor from "compressorjs";
 import { supabase } from "../Helpers/supabase";
 
+function trimWord(word) {
+  const trimmedWord = word.toLowerCase().trim();
+  return trimmedWord;
+}
+
+export function sortPostsFromLatestToOldest(array) {
+  // Sort the posts array based on the 'created_at' property in descending order
+  array.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+  return array;
+}
+
+export async function logInUser(userInfo) {
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.signInWithPassword(userInfo);
+
+  //if there was an error logging in, show it
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+export async function signUpUser(userInfo) {
+  const { email, password, userName } = userInfo;
+
+  const trimmedEmail = trimWord(email);
+  const trimedUsername = trimWord(userName);
+
+  //create the user with these details
+  const { data: createdUser, error: createError } = await supabase.auth.signUp({
+    email: trimmedEmail,
+    password,
+    options: { data: { userName: trimedUsername } },
+  });
+
+  //if there was an error signing up
+  if (createError?.message) {
+    throw new Error(createError.message);
+  }
+}
+
 export async function getPosts(id) {
   //fetch the posts for this particular id
   let { data: Posts, error } = await supabase
@@ -118,4 +161,20 @@ export async function getSinglePost(postId) {
   }
 
   return Posts[0];
+}
+
+export async function updateUsername(newUsername) {
+  //gets the id  from the local storage
+  const {
+    user: { id },
+  } = JSON.parse(localStorage.getItem("sb-jmfwsnwrjdahhxvtvqgq-auth-token"));
+
+  const { data, error } = await supabase
+    .from("UsersInfo")
+    .update({ username: `"${trimWord(newUsername)}"` })
+    .eq("id", id);
+
+  if (error?.message) {
+    throw new Error(error.message);
+  }
 }

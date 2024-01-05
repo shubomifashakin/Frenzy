@@ -14,6 +14,7 @@ function AppLayout() {
   const [mobileNav, toggleMobileNav] = useState(false);
   const [isCreatePost, toggleCreatePost] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+  const [isEditingUserInfo, toggleEditUserInfo] = useState(false);
 
   //if we click anywhere on the layout remove the mobilenav and post modal
   function handleLayoutClick(e) {
@@ -24,6 +25,7 @@ function AppLayout() {
     toggleMobileNav(false);
     //close search bar
     setSearchValue([]);
+    toggleEditUserInfo(false);
   }
 
   return (
@@ -35,6 +37,8 @@ function AppLayout() {
         toggleMobileNav,
         searchValue,
         setSearchValue,
+        isEditingUserInfo,
+        toggleEditUserInfo,
       }}
     >
       <div
@@ -47,8 +51,8 @@ function AppLayout() {
           <div className="flex w-full flex-col justify-between space-y-4">
             <UserInfo />
           </div>
-
-          <Timer />
+          {/* 
+          <Timer /> */}
         </Sidebars>
 
         <main className=" col-start-2  h-full  overflow-auto border-tertiaryColor lg:border-x">
@@ -57,9 +61,17 @@ function AppLayout() {
 
         <Sidebars colNo={3} height={"full"} sideColor={true} />
 
-        <CreatePosts />
+        <CreatePosts
+          isCreatePost={isCreatePost}
+          toggleCreatePost={toggleCreatePost}
+        />
 
-        <PostBtn />
+        <PostBtn
+          toggleCreatePost={toggleCreatePost}
+          toggleMobileNav={toggleMobileNav}
+          setSearchValue={setSearchValue}
+          toggleEditUserInfo={toggleEditUserInfo}
+        />
       </div>
     </UserContext.Provider>
   );
