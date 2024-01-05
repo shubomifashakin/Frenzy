@@ -13,7 +13,7 @@ function ProfilePage() {
 
   //fetches our posts on mount
   const { status, data, error, refetch } = useQuery({
-    queryKey: ["posts"],
+    queryKey: ["usersPosts"],
     queryFn: () => getPosts(id),
   });
 

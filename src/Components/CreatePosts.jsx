@@ -1,11 +1,12 @@
 import { memo, useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
+
 import toast from "react-hot-toast";
 
-import InputError from "./InputError";
-
 import { getUsersInfo, uploadPost } from "../Actions/functions";
+
+import InputError from "./InputError";
 import { Button } from "./Button";
 
 export const CreatePosts = memo(function CreatePosts({

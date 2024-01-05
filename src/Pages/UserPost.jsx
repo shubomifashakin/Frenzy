@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
+
 import { getSinglePost } from "../Actions/functions";
+
 import LoadingPosts from "../Components/LoadingPosts";
 import { Post } from "../Components/Post";
 import { ErrorLoading } from "../Components/Errors";

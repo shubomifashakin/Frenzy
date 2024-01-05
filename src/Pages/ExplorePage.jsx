@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
+
 import {
   getAllPostsByUsers,
   sortPostsFromLatestToOldest,
 } from "../Actions/functions";
+
 import { ErrorLoading } from "../Components/Errors";
 import LoadingPosts from "../Components/LoadingPosts";
 import { Post } from "../Components/Post";

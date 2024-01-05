@@ -1,15 +1,17 @@
+import { memo, useContext, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { getPosts, getUsersInfo } from "../Actions/functions";
 import { useQuery } from "@tanstack/react-query";
-import LoadingPosts from "../Components/LoadingPosts";
-import { ErrorLoading } from "../Components/Errors";
-import { memo, useEffect } from "react";
-import { Post } from "../Components/Post";
+
 import { IoChevronBack } from "react-icons/io5";
 
-function UserPage() {
-  //get user profile and their posts
+import { getPosts, getUsersInfo } from "../Actions/functions";
 
+import LoadingPosts from "../Components/LoadingPosts";
+import { ErrorLoading } from "../Components/Errors";
+import { Post } from "../Components/Post";
+import { UserContext } from "../Components/AppLayout";
+
+function UserPage() {
   //get the userId from the params
   const { userId } = useParams();
 
@@ -82,7 +84,7 @@ function UserPage() {
       !userIsRefetching &&
       !postsIsLoading ? (
         <>
-          <UsersInfo info={userData} />
+          <UsersInfo info={userData} numberOfPosts={postsData.length} />
           <UsersPosts posts={postsData} />
         </>
       ) : null}
@@ -110,7 +112,7 @@ function UserPage() {
 
 export default UserPage;
 
-function UsersInfo({ info }) {
+function UsersInfo({ info, numberOfPosts }) {
   const { avatar, created_at } = info;
 
   const username = info.username.replaceAll('"', "");
@@ -127,6 +129,9 @@ function UsersInfo({ info }) {
 
         <UserName username={username} />
 
+        <p className="text-sm font-semibold">
+          {numberOfPosts} {numberOfPosts > 1 ? "Posts" : "Post"}
+        </p>
         <p className="text-center text-xs">Joined {formatNumber}</p>
       </div>
 
@@ -141,10 +146,20 @@ function UsersInfo({ info }) {
 }
 
 const ProfilePicture = memo(function ProfilePicture({ avatar }) {
+  const { toggleImageModal, isImageModal } = useContext(UserContext);
+
+  function showImage(e) {
+    e.stopPropagation();
+    toggleImageModal(avatar);
+  }
+
   return (
     <img
+      onClick={showImage}
       src={avatar}
-      className=" h-full w-full rounded-full object-cover grayscale-[25%]"
+      className={`h-full w-full ${
+        isImageModal ? "grayscale-[100%]" : ""
+      } cursor-pointer rounded-full object-cover hover:grayscale-[25%]`}
     />
   );
 });
@@ -160,7 +175,7 @@ function UsersPosts({ posts }) {
   return (
     <>
       {reversed.map((post, i) => (
-        <Post key={i} info={post} />
+        <Post key={i} info={post} userPage={true} />
       ))}
     </>
   );

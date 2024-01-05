@@ -1,11 +1,13 @@
 import { memo, useContext, useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { supabase } from "../Helpers/supabase";
+import toast from "react-hot-toast";
+import { FaCaretLeft, FaCaretRight } from "react-icons/fa6";
+
+import { findUsers, logOutUser } from "../Actions/functions";
 
 import { UserContext } from "./AppLayout";
-import { FaCaretLeft, FaCaretRight } from "react-icons/fa6";
-import toast from "react-hot-toast";
 
 function Navbar() {
   function CloseSearch(e) {
@@ -19,7 +21,7 @@ function Navbar() {
   return (
     <nav
       onClick={CloseSearch}
-      className={`absolute left-0 top-0  z-50  col-span-full row-span-1 flex h-full w-9/12 flex-col space-y-4 border-b border-tertiaryColor bg-primaryBgColor px-2 py-4 transition-all duration-500 ease-in-out md:p-5 lg:relative lg:left-0 lg:grid lg:w-full lg:grid-cols-[1fr_1.5fr_1fr] lg:items-center lg:justify-start lg:space-y-2  lg:px-5 lg:py-0 ${
+      className={`absolute left-0 top-0  z-50 col-span-full row-span-1 flex h-full w-9/12 flex-col space-y-4 border-b border-tertiaryColor bg-primaryBgColor px-2 py-4 transition-all duration-500 ease-in-out md:p-5 lg:relative lg:left-0 lg:z-auto lg:grid lg:w-full lg:grid-cols-[1fr_1.5fr_1fr] lg:items-center lg:justify-start lg:space-y-2  lg:px-5 lg:py-0 ${
         mobileNav ? "left-0" : "left-[-75%]"
       }`}
     >
@@ -78,17 +80,14 @@ const Timer = memo(function Timer() {
 
   const navigate = useNavigate();
 
-  async function logOut() {
-    let { error } = await supabase.auth.signOut();
-    navigate("/");
-  }
-
   useEffect(function () {
     const intervalId = setInterval(function () {
       if (timeLeft) {
         setTimeLeft((c) => c - 1000);
       } else {
-        logOut();
+        logOutUser();
+
+        navigate("/");
       }
     }, 1000);
 
@@ -112,14 +111,29 @@ const Timer = memo(function Timer() {
 
 const LogOutBtn = memo(function LogOutBtn() {
   const navigate = useNavigate();
-  async function logOut() {
-    let { error } = await supabase.auth.signOut();
-    navigate("/");
-  }
+
+  const queryClient = useQueryClient();
+
+  const { mutate: logOutFn, isPending } = useMutation({
+    mutationFn: logOutUser,
+
+    onSuccess: () => {
+      //remove all queries
+      queryClient.removeQueries();
+
+      //go back to the sign in page
+      navigate("/");
+    },
+
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   return (
     <button
-      onClick={logOut}
+      disabled={isPending}
+      onClick={logOutFn}
       className="order-last text-left text-2xl font-bold transition-all  duration-300 hover:text-orangeColor md:text-3xl lg:order-3 lg:justify-self-end lg:text-base"
     >
       Log Out
@@ -173,47 +187,34 @@ const SearchBar = memo(function SearchBar({ searchValue, setSearchValue }) {
 });
 
 const SearchBarDropdown = memo(function SearchBarDropdown({ searchValue }) {
-  const [foundUsers, setFoundUsers] = useState([]);
-  const [searching, setSearching] = useState(false);
   //when the searchbarvalue changes refetch the users
+  const { mutate, isPending, isSuccess, data } = useMutation({
+    mutationFn: findUsers,
 
-  // //fetch users when the value in the searchbar is at least 3
+    onError: (err) => {
+      if (
+        err.message === `AbortError: The user aborted a request.` ||
+        err.message === `AbortError: signal is aborted without reason` ||
+        err.message === `AbortError: Fetch is aborted`
+      )
+        return;
+
+      toast.error(err.message);
+    },
+  });
+
+  //fetch users when the value in the searchbar is at least 3
   useEffect(
     function () {
       const abortSignal = new AbortController();
 
-      async function findUser() {
-        try {
-          setSearching(true);
-          let { data: Users, error } = await supabase
-            .from("UsersInfo")
-            .select("*")
-            .ilike("username", `%${searchValue}%`)
-            .abortSignal(abortSignal.signal);
-
-          if (error?.message) throw new Error(error.message);
-
-          setFoundUsers(Users);
-          setSearching(false);
-        } catch (err) {
-          setSearching(false);
-          if (
-            err.message === `AbortError: The user aborted a request.` ||
-            err.message === `AbortError: signal is aborted without reason`
-          )
-            return;
-
-          toast.error(err.message);
-        }
-      }
-
       if (searchValue.length > 2) {
-        findUser();
+        mutate({ searchValue, abortSignal });
       }
 
       return () => abortSignal.abort();
     },
-    [searchValue, setFoundUsers],
+    [searchValue, mutate],
   );
 
   return (
@@ -222,17 +223,17 @@ const SearchBarDropdown = memo(function SearchBarDropdown({ searchValue }) {
         searchValue.length > 2 ? "block" : "hidden"
       }  lg:max-h-72 lg:min-h-20  `}
     >
-      {!foundUsers.length && !searching ? (
+      {!data?.length && isSuccess ? (
         <p className="text-center font-semibold text-primaryBgColor">
           No users found
         </p>
       ) : null}
 
-      {foundUsers.length && !searching
-        ? foundUsers.map((user, i) => <FoundUser user={user} key={i} />)
+      {data?.length && isSuccess
+        ? data.map((user, i) => <FoundUser user={user} key={i} />)
         : null}
 
-      {searching ? (
+      {isPending ? (
         <p className="text-center font-semibold text-primaryBgColor">
           Searching
         </p>

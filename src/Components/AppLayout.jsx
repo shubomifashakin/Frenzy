@@ -8,6 +8,7 @@ import Sidebars from "./Sidebars";
 import { UserInfo } from "./UserInfo";
 
 import { Timer } from "./Timer";
+import ImageModal from "./ImageModal";
 
 export const UserContext = createContext(null);
 function AppLayout() {
@@ -15,17 +16,21 @@ function AppLayout() {
   const [isCreatePost, toggleCreatePost] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [isEditingUserInfo, toggleEditUserInfo] = useState(false);
+  const [isImageModal, toggleImageModal] = useState("");
 
   //if we click anywhere on the layout remove the mobilenav and post modal
   function handleLayoutClick(e) {
     e.stopPropagation();
-    //close posts
+    //close create post modal
     toggleCreatePost(false);
     //close mobile nav
     toggleMobileNav(false);
     //close search bar
     setSearchValue([]);
+    //close edit user info
     toggleEditUserInfo(false);
+    //close image modal
+    toggleImageModal("");
   }
 
   return (
@@ -39,11 +44,13 @@ function AppLayout() {
         setSearchValue,
         isEditingUserInfo,
         toggleEditUserInfo,
+        toggleImageModal,
+        isImageModal,
       }}
     >
       <div
         onClick={handleLayoutClick}
-        className="group relative h-dvh bg-primaryBgColor lg:grid lg:grid-cols-[1fr_1.5fr_1fr] lg:grid-rows-[0.35fr_3fr] 2xl:grid-rows-[0.2fr_2fr]"
+        className=" relative h-dvh bg-primaryBgColor lg:grid lg:grid-cols-[1fr_1.5fr_1fr] lg:grid-rows-[0.35fr_3fr] 2xl:grid-rows-[0.2fr_2fr]"
       >
         <Navbar />
 
@@ -64,6 +71,11 @@ function AppLayout() {
         <CreatePosts
           isCreatePost={isCreatePost}
           toggleCreatePost={toggleCreatePost}
+        />
+
+        <ImageModal
+          isImageModal={isImageModal}
+          toggleImageModal={toggleImageModal}
         />
 
         <PostBtn

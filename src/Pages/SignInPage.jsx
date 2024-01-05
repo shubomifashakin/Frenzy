@@ -1,26 +1,25 @@
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+
+import { logInUser, signUpUser } from "../Actions/functions";
+
 import { CheckBox } from "../Components/CheckBox";
 import InputError from "../Components/InputError";
-import { userStore } from "../Stores/UserStore";
 import { Button } from "../Components/Button";
-import { useMutation } from "@tanstack/react-query";
-import { logInUser, signUpUser } from "../Actions/functions";
 
 function SignInPage() {
   const [checked, setChecked] = useState(false);
   const navigate = useNavigate();
-  const setUser = userStore(function (state) {
-    return state.setUser;
-  });
 
   const loggedInfo = JSON.parse(
     localStorage.getItem("sb-jmfwsnwrjdahhxvtvqgq-auth-token"),
   );
 
-  //if there was no logged Info we assume the data has expired
+  //if there was no logged Info we assume the data has expired or the user has never logged in before
+
   //i added 3 zeros to it because supabase date.now() is wrong
   const hasExpired = loggedInfo
     ? Date.now() > Number(loggedInfo?.expires_at + "000")
@@ -30,13 +29,13 @@ function SignInPage() {
   useEffect(
     function () {
       if (!hasExpired) {
-        setUser(loggedInfo.user);
         navigate("profile");
       }
     },
-    [hasExpired, navigate, loggedInfo, setUser],
+    [hasExpired, navigate, loggedInfo],
   );
 
+  //if it has expired, return the sign in page, if not return nothing cus we are redirecting
   return hasExpired ? (
     <div className="h-dvh bg-primaryBgColor px-8 py-2 md:px-9 md:py-[2rem]">
       <div className="flex h-full flex-col items-center justify-center gap-5">

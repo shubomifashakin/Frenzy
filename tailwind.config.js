@@ -30,6 +30,8 @@ export default {
         btnHover: "#181717",
         orangeColor: "#f45f31",
         orangeLight: "#f45f31c0",
+
+        lightBlack: "#000000bd",
       },
     },
   },

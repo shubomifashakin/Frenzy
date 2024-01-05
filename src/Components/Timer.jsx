@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../Helpers/supabase";
 import { useNavigate } from "react-router-dom";
+import { logOutUser } from "../Actions/functions";
 
 export function Timer() {
   const timeHad = 60 * 1000 * 60 * 2;
@@ -19,17 +20,14 @@ export function Timer() {
 
   const navigate = useNavigate();
 
-  async function logOut() {
-    let { error } = await supabase.auth.signOut();
-    navigate("/");
-  }
-
   useEffect(function () {
     const intervalId = setInterval(function () {
       if (timeLeft) {
         setTimeLeft((c) => c - 1000);
       } else {
-        logOut();
+        logOutUser();
+
+        navigate("/");
       }
     }, 1000);
 
