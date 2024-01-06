@@ -24,7 +24,12 @@ export function Post({ info, isPostPage = false, isUserPage = false }) {
         isUserPage={isUserPage}
       />
 
-      <PostContent content={content} isPostPage={isPostPage} postId={postId} />
+      <PostContent
+        content={content}
+        image={image}
+        isPostPage={isPostPage}
+        postId={postId}
+      />
 
       {image ? (
         <PostImage
@@ -152,8 +157,10 @@ function TimeOfPost({ time }) {
   );
 }
 
-function PostContent({ content, postId, isPostPage }) {
+function PostContent({ content, postId, isPostPage, image }) {
   const navigate = useNavigate();
+
+  console.log(image);
 
   function goToPostPage() {
     if (isPostPage) return;
@@ -162,9 +169,9 @@ function PostContent({ content, postId, isPostPage }) {
   return (
     <p
       onClick={goToPostPage}
-      className={`min-h-10 ${
-        !isPostPage ? "cursor-pointer" : null
-      }  px-2 py-5 font-normal  text-black `}
+      className={`min-h-10 ${!isPostPage ? "cursor-pointer" : null}  px-2 ${
+        image ? "pb-3 pt-4" : "py-5"
+      }  font-normal  text-black `}
     >
       {content}
     </p>
@@ -183,13 +190,13 @@ function PostImage({ image, isShowingImage, setShowImage }) {
       <div
         className={` ${
           isShowingImage ? "flex" : "hidden"
-        }  max-h-60 w-full justify-center px-3 py-4 `}
+        }  max-h-60 w-full justify-center px-3 `}
       >
         <img
           onClick={showFullImage}
-          className={`w-full cursor-pointer object-contain ${
+          className={`w-full cursor-pointer object-cover ${
             isImageModal ? "grayscale-[100%]" : ""
-          } transition-all duration-300 hover:scale-110`}
+          } transition-all duration-300  hover:scale-[1.02]`}
           src={image}
         />
       </div>
