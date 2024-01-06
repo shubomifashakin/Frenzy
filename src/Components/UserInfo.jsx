@@ -1,9 +1,11 @@
-import { memo, useContext, useRef, useState } from "react";
+import { memo, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { FiEdit } from "react-icons/fi";
+import { FaRegImages } from "react-icons/fa";
 
 import {
   getPosts,
@@ -16,6 +18,7 @@ import LoadingUsersInfo from "./LoadingUsersInfo";
 import { ErrorLoading } from "./Errors";
 import { UserContext } from "./AppLayout";
 import { Button } from "./Button";
+import { usernameExists } from "../Helpers/heperFunctions";
 
 export function UserInfo() {
   const {
@@ -59,12 +62,14 @@ export function UserInfo() {
               isEditingUserInfo={isEditingUserInfo}
             />
 
-            {postsData?.length ? (
+            {postsData?.length >= 0 ? (
               <p className="text-sm font-semibold">
-                {postsData.length} {postsData.length > 1 ? "Posts" : "Post"}
+                {postsData.length} {postsData.length !== 1 ? "Posts" : "Post"}
               </p>
             ) : (
-              <p className="text-sm font-semibold">Loading Posts</p>
+              <p className="text-xs font-semibold text-orangeColor">
+                Loading Posts
+              </p>
             )}
           </div>
 
@@ -165,18 +170,23 @@ function EditUserInfo({ setIsEditing, currentImage, currentUsername }) {
   const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
     mutationFn: updateUserInfo,
+
     onSuccess: () => {
-      toast.success("Update Successful");
       setAvatar(null);
       reset();
       setIsEditing(false);
       queryClient.invalidateQueries(["userinfo"]);
+      toast.success("Update Successful");
     },
 
-    onError: (err) => {
+    onError: (errors) => {
       //if anything failed, set the values in the database back to what we had before
       setBackToCurrentInfo(currentUsername, currentImage);
-      toast.error(err.message);
+
+      //check if the error was username already exists one
+      const userExists = usernameExists(errors.message);
+
+      toast.error(userExists ? "Username is Taken" : errors.message);
     },
   });
 
@@ -213,7 +223,13 @@ function EditUserInfo({ setIsEditing, currentImage, currentUsername }) {
 }
 
 function EditImage({ setAvatar, currentImage }) {
+  const memoReader = useMemo(function () {
+    return new FileReader();
+  }, []);
+
   const fileRef = useRef(null);
+  const imageRef = useRef(null);
+
   //when we click the image it triggers the hidden file input
   function handleImageClick(e) {
     e.stopPropagation();
@@ -222,12 +238,32 @@ function EditImage({ setAvatar, currentImage }) {
 
   function storeImage(e) {
     const selectedFile = e.target.files[0];
+    //convert the selected file to an image and set the img element to that image
+    memoReader.readAsDataURL(selectedFile);
+    //add it to the state, for it to be sent
     setAvatar(selectedFile);
   }
+
+  //adds the reader event listener on mount, removes it when it unmounts
+  useEffect(
+    function () {
+      function fileLoaded(e) {
+        // convert image file to string
+        imageRef.current.src = e.target.result;
+      }
+
+      memoReader.addEventListener("load", fileLoaded, false);
+
+      return () => memoReader.removeEventListener("load", fileLoaded);
+    },
+    [memoReader],
+  );
+
   return (
-    <div className="relative flex h-[200px] w-[200px] items-center justify-center rounded-full ">
+    <div className="group relative flex h-[200px] w-[200px] items-center justify-center rounded-full ">
       <img
         onClick={handleImageClick}
+        ref={imageRef}
         src={currentImage}
         className={`h-full w-full cursor-pointer rounded-full object-cover opacity-75 grayscale-[90%] transition-all duration-500 hover:grayscale-[100%]`}
       />
@@ -241,9 +277,7 @@ function EditImage({ setAvatar, currentImage }) {
         onChange={storeImage}
       />
 
-      <p className="absolute left-1/2 top-1/2 translate-x-[-50%] translate-y-[-50%] cursor-pointer text-xl font-semibold text-white">
-        Click
-      </p>
+      <FaRegImages className="absolute left-1/2 top-1/2 translate-x-[-50%] translate-y-[-50%] cursor-pointer text-4xl font-semibold text-white transition-colors duration-300 group-hover:text-orangeColor" />
     </div>
   );
 }
@@ -271,7 +305,7 @@ function EditUsername({ register, errors }) {
       />
 
       {errors?.username?.message ? (
-        <p className=" absolute  left-2  top-1 text-xs font-semibold text-white transition-all duration-300 peer-focus:top-0 peer-focus:opacity-75">
+        <p className=" absolute left-2 top-1  text-xs font-semibold tracking-wide text-white transition-all duration-300 peer-focus:top-0 peer-focus:opacity-75">
           {errors.username.message}
         </p>
       ) : null}
@@ -279,7 +313,7 @@ function EditUsername({ register, errors }) {
       {!errors?.username ? (
         <label
           htmlFor="username"
-          className=" font-base  absolute  left-2 top-1 text-xs text-white transition-all duration-300 peer-focus:top-0 peer-focus:opacity-75"
+          className=" font-base absolute left-2  top-1 text-xs tracking-widest text-white transition-all duration-300 peer-focus:top-0 peer-focus:opacity-75"
         >
           new username
         </label>

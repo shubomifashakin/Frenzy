@@ -1,13 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 
-import {
-  getAllPostsByUsers,
-  sortPostsFromLatestToOldest,
-} from "../Actions/functions";
-
 import { ErrorLoading } from "../Components/Errors";
 import LoadingPosts from "../Components/LoadingPosts";
 import { Post } from "../Components/Post";
+
+import { getAllPostsByUsers } from "../Actions/functions";
+
+import { sortPostsFromLatestToOldest } from "../Helpers/heperFunctions";
 
 function ExplorePage() {
   //get posts from all users

@@ -2,16 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { getPosts, getUsersInfo } from "../Actions/functions";
 import DotLoader from "./DotLoader";
 import { UserContext } from "./AppLayout";
 
-export function Post({
-  info,
-  profilePage = false,
-  isPostPage = false,
-  userPage = false,
-}) {
+import { getPosts, getUsersInfo } from "../Actions/functions";
+
+export function Post({ info, isPostPage = false, isUserPage = false }) {
   const [isShowingImage, setShowImage] = useState(false);
 
   const { user_id: userId, created_at, content, image, id: postId } = info;
@@ -22,11 +18,10 @@ export function Post({
   return (
     <div className=" relative bg-secondaryColor">
       <PostHeader
-        profilePage={profilePage}
         userId={userId}
         username={username}
         created_at={created_at}
-        userPage={userPage}
+        isUserPage={isUserPage}
       />
 
       <PostContent content={content} isPostPage={isPostPage} postId={postId} />
@@ -42,7 +37,7 @@ export function Post({
   );
 }
 
-function PostHeader({ created_at, username, userId, userPage }) {
+function PostHeader({ created_at, username, userId, isUserPage }) {
   const [isHovering, setIsHovering] = useState(false);
 
   //get the id of the user thats logged in
@@ -50,14 +45,14 @@ function PostHeader({ created_at, username, userId, userPage }) {
     user: { id: loggedId },
   } = JSON.parse(localStorage.getItem("sb-jmfwsnwrjdahhxvtvqgq-auth-token"));
 
-  //if the id of the post is the same thing with the logged in user, then the post is for the user, so show 'You'
+  //if the userId of the post is the same as the logged in user, then the post is for the user, so replace username w 'You'
   const postUsername = loggedId === userId ? "You" : username;
 
   return (
     <h2 className=" flex items-center justify-between rounded-t-lg border-b border-primaryBgColor  px-2 py-1 font-semibold text-black">
-      {/*if the post is not by the logged user and also not from an external users page add a profile link (this means the posts being rendered is from the explore or timeline page) */}
+      {/*if the post being rendered is not by the logged user and the logged in user is not on the userPage route (this means the posts being rendered is from the explore or timeline page) */}
 
-      {loggedId !== userId && !userPage ? (
+      {loggedId !== userId && !isUserPage ? (
         <Link
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
@@ -84,6 +79,7 @@ function HoverUserNameModal({ userId }) {
       queryFn: () => getUsersInfo(userId),
     });
 
+  //get the users posts
   const {
     isFetched: fetchedPosts,
     isFetching: fetchingPosts,
@@ -98,7 +94,7 @@ function HoverUserNameModal({ userId }) {
 
   return (
     <>
-      <div className="bg-lightBlack absolute left-full top-0 hidden h-24 min-w-52 max-w-60 animate-flash rounded-sm transition-all duration-300 hover:block hover:bg-black lg:group-hover:block">
+      <div className="absolute left-full top-0 hidden h-24 min-w-52 max-w-60 animate-flash rounded-sm bg-lightBlack transition-all duration-300 hover:block hover:bg-black hover:shadow hover:shadow-black  lg:group-hover:block">
         {(isFetching ||
           isRefetching ||
           isLoading ||
@@ -117,7 +113,7 @@ function HoverUserNameModal({ userId }) {
         !isRefetchingPosts &&
         !error &&
         !postsError ? (
-          <div className="flex h-full w-full space-x-1  p-2">
+          <div className="flex h-full w-full space-x-1 p-2 ">
             <section className="h-full rounded-full">
               <img
                 src={data.avatar}
@@ -126,11 +122,13 @@ function HoverUserNameModal({ userId }) {
             </section>
 
             <section>
-              <p className="font-base text-xs text-white">
+              <p className=" text-xs tracking-wide text-white">
                 @{data.username.replaceAll('"', "")}
               </p>
 
-              <p className="text-xs">{postsData.length} Posts</p>
+              <p className="text-xs font-normal tracking-wide text-white">
+                {postsData.length} {postsData.length !== 1 ? "Posts" : "Post"}
+              </p>
             </section>
           </div>
         ) : null}

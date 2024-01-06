@@ -4,12 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 
 import { IoChevronBack } from "react-icons/io5";
 
-import { getPosts, getUsersInfo } from "../Actions/functions";
-
 import LoadingPosts from "../Components/LoadingPosts";
 import { ErrorLoading } from "../Components/Errors";
 import { Post } from "../Components/Post";
 import { UserContext } from "../Components/AppLayout";
+
+import { getPosts, getUsersInfo } from "../Actions/functions";
 
 function UserPage() {
   //get the userId from the params
@@ -47,7 +47,7 @@ function UserPage() {
   });
 
   //if both of them failed, retch both of them at the same time
-  function BothFailedFn() {
+  function refetchAll() {
     refetchPosts();
     refetchUser();
   }
@@ -90,20 +90,10 @@ function UserPage() {
       ) : null}
 
       {/**if only one of them failed, still refetch all */}
-      {(userHasError || postsHasError) && userHasError !== postsHasError ? (
+      {(userHasError || postsHasError) && (userHasError || postsHasError) ? (
         <ErrorLoading
-          retryFn={BothFailedFn}
+          retryFn={refetchAll}
           message={postsError?.message || userError?.message}
-        />
-      ) : null}
-
-      {/*if both of them failed */}
-      {userHasError && postsHasError ? (
-        <ErrorLoading
-          retryFn={BothFailedFn}
-          message={
-            "Lets try that again, Please check if you are connected to the internet!"
-          }
         />
       ) : null}
     </div>
@@ -121,22 +111,21 @@ function UsersInfo({ info, numberOfPosts }) {
   }).format(new Date(created_at));
 
   return (
-    <div className="relative w-full bg-orangeLight py-2">
+    <div className="relative w-full bg-orangeColor py-2">
       <div className=" flex flex-col   items-center justify-between space-y-6 py-5">
-        <div className="flex h-1/2 w-[200px] items-center justify-center rounded-full ">
-          <ProfilePicture avatar={avatar} />
-        </div>
+        <ProfilePicture avatar={avatar} />
 
         <UserName username={username} />
 
         <p className="text-sm font-semibold">
-          {numberOfPosts} {numberOfPosts > 1 ? "Posts" : "Post"}
+          {numberOfPosts} {numberOfPosts !== 1 ? "Posts" : "Post"}
         </p>
+
         <p className="text-center text-xs">Joined {formatNumber}</p>
       </div>
 
       <Link
-        to={"/profile"}
+        to={"/explore"}
         className="absolute left-5 top-5 text-base font-bold transition-all duration-300 hover:text-white"
       >
         <IoChevronBack className="text-2xl " />
@@ -154,13 +143,15 @@ const ProfilePicture = memo(function ProfilePicture({ avatar }) {
   }
 
   return (
-    <img
-      onClick={showImage}
-      src={avatar}
-      className={`aspect-square h-full  w-full object-cover ${
-        isImageModal ? "grayscale-[100%]" : ""
-      } cursor-pointer rounded-full object-cover transition-all duration-500  hover:grayscale-[100%]`}
-    />
+    <div className="flex h-1/2 w-[200px] items-center justify-center rounded-full ">
+      <img
+        onClick={showImage}
+        src={avatar}
+        className={`aspect-square h-full  w-full object-cover ${
+          isImageModal ? "grayscale-[100%]" : ""
+        } cursor-pointer rounded-full object-cover transition-all duration-500  hover:grayscale-[100%]`}
+      />
+    </div>
   );
 });
 
@@ -175,7 +166,7 @@ function UsersPosts({ posts }) {
   return (
     <>
       {reversed.map((post, i) => (
-        <Post key={i} info={post} userPage={true} />
+        <Post key={i} info={post} isUserPage={true} />
       ))}
     </>
   );

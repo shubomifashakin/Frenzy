@@ -9,6 +9,7 @@ import { logInUser, signUpUser } from "../Actions/functions";
 import { CheckBox } from "../Components/CheckBox";
 import InputError from "../Components/InputError";
 import { Button } from "../Components/Button";
+import { usernameExists } from "../Helpers/heperFunctions";
 
 function SignInPage() {
   const [checked, setChecked] = useState(false);
@@ -117,11 +118,9 @@ function SignUp() {
 
     onError: (errors) => {
       //check if the error was username already exists one
-      const userNameExists =
-        errors.message ===
-        'duplicate key value violates unique constraint "UsersInfo_username_key"';
+      const userExists = usernameExists(errors.message);
 
-      toast.error(userNameExists ? "Username is Taken" : errors.message);
+      toast.error(userExists ? "Username is Taken" : errors.message);
     },
   });
 

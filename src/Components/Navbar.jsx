@@ -1,4 +1,4 @@
-import { memo, useContext, useEffect, useState } from "react";
+import { memo, useContext, useEffect, useMemo, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -168,20 +168,27 @@ const NavItem = memo(function Username({ children, path, logo = false }) {
 });
 
 const SearchBar = memo(function SearchBar({ searchValue, setSearchValue }) {
+  const searchWord = useMemo(
+    function () {
+      return searchValue;
+    },
+    [searchValue],
+  );
+
   return (
     <div className="group relative order-2 block items-center justify-center lg:order-2 lg:flex lg:h-full lg:w-full ">
       <div className="relative flex w-full items-center border-2 border-black bg-orangeColor  font-semibold text-primaryBgColor lg:rounded">
         <input
           className="input-style peer order-2 w-full rounded-none border-none bg-orangeColor transition-all duration-500 focus:bg-btnHover focus:text-primaryBgColor md:py-4 lg:p-2 "
           placeholder="username"
-          value={searchValue}
+          value={searchWord}
           onChange={(e) => setSearchValue(e.target.value)}
         />
         <span className="order-1 h-full cursor-default border-r-2 border-black bg-orangeColor  p-2 font-bold transition-all duration-500 peer-focus:bg-btnHover peer-focus:text-primaryBgColor md:py-4 lg:p-2">
           @
         </span>
       </div>
-      <SearchBarDropdown searchValue={searchValue} />
+      <SearchBarDropdown searchValue={searchWord} />
     </div>
   );
 });
@@ -224,7 +231,7 @@ const SearchBarDropdown = memo(function SearchBarDropdown({ searchValue }) {
       }  lg:max-h-72 lg:min-h-20  `}
     >
       {!data?.length && isSuccess ? (
-        <p className="flex h-32 items-center justify-center text-center font-semibold text-primaryBgColor">
+        <p className="flex h-20 items-center justify-center text-center font-semibold text-primaryBgColor">
           No users found
         </p>
       ) : null}
@@ -234,7 +241,7 @@ const SearchBarDropdown = memo(function SearchBarDropdown({ searchValue }) {
         : null}
 
       {isPending ? (
-        <p className="flex h-32 items-center justify-center text-center font-semibold text-primaryBgColor">
+        <p className="flex h-20 items-center justify-center text-center font-semibold text-primaryBgColor">
           Searching
         </p>
       ) : null}
@@ -248,7 +255,7 @@ function FoundUser({ user }) {
   return (
     <Link
       to={`/${user.id}`}
-      className="relative flex h-32 w-full flex-shrink-0 flex-grow-0 items-center space-x-4  rounded-sm p-4 font-semibold text-primaryBgColor transition-all  duration-500 hover:bg-orangeColor"
+      className="relative flex h-20 w-full flex-shrink-0 flex-grow-0 items-center space-x-4 rounded-sm  p-4 font-semibold text-primaryBgColor transition-all duration-500  hover:bg-orangeColor lg:h-32"
     >
       <div className="h-full">
         <img

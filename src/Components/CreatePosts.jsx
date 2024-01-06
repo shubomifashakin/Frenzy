@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 
@@ -169,6 +169,8 @@ const DropFile = memo(function DropFile({
   setIsDragging,
   isDragging,
 }) {
+  const fileRef = useRef(null);
+
   function handleDragOver(e) {
     setIsDragging(true);
   }
@@ -198,31 +200,63 @@ const DropFile = memo(function DropFile({
   }
 
   //when the user double clicks on the drag container, the image would be discarded
-  function HanldeDiscardImage() {
+  function HanldeDiscardImage(e) {
+    e.stopPropagation();
     setFile(null);
     setIsDragging(false);
   }
 
+  //when we click the image field it triggers the hidden file input
+  function handleImageClick(e) {
+    console.log("hello");
+    e.stopPropagation();
+    fileRef.current.click();
+  }
+
+  function storeImage(e) {
+    const selectedFile = e.target.files[0];
+    setIsDragging(true);
+    setFile(selectedFile);
+  }
+
   return (
     <div
+      onClick={handleImageClick}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDragEnter={handleDragEnter}
       onDrop={handleDrop}
-      onDoubleClick={HanldeDiscardImage}
-      className={`mb-4 hidden rounded-lg transition-all duration-500  ${
-        isDragging ? "bg-secondaryColor hover:bg-stone-300" : "bg-tertiaryColor"
-      } px-5 py-7 lg:block ${file?.name ? "cursor-pointer" : ""}`}
+      className={`mb-4  hidden cursor-pointer flex-col items-center justify-center rounded-lg transition-all duration-500  ${
+        isDragging ? "bg-secondaryColor" : "bg-tertiaryColor"
+      } px-5 py-7 lg:flex `}
     >
-      <p
+      <input
+        type="file"
+        accept={["image/png", "image/jpeg", "image/jpg"]}
+        className="hidden"
+        ref={fileRef}
+        onClick={(e) => e.stopPropagation()}
+        onChange={storeImage}
+      />
+
+      <span
         className={`text-center text-sm font-bold capitalize ${
           isDragging ? " text-black" : ""
         }`}
       >
         {file?.name
-          ? ` ${file.name} (Double Click to Remove Image)`
-          : "Drag and Drop your image here "}
-      </p>
+          ? ` ${file.name}`
+          : "Click or Drag and Drop your image here "}
+      </span>
+
+      {file?.name ? (
+        <p
+          className="mt-2 text-center text-xs font-bold underline hover:text-orangeColor "
+          onClick={HanldeDiscardImage}
+        >
+          Remove Image
+        </p>
+      ) : null}
     </div>
   );
 });

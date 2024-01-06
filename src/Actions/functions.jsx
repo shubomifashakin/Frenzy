@@ -1,17 +1,6 @@
 import Compressor from "compressorjs";
-import { supabase } from "../Helpers/supabase";
-
-function trimWord(word) {
-  const trimmedWord = word.toLowerCase().trim();
-  return trimmedWord;
-}
-
-export function sortPostsFromLatestToOldest(array) {
-  // Sort the posts array based on the 'created_at' property in descending order
-  array.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
-  return array;
-}
+import { supabase } from "../Supabase/supabase";
+import { trimWord } from "../Helpers/heperFunctions";
 
 export async function logInUser(userInfo) {
   const {

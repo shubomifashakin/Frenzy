@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { getPosts, sortPostsFromLatestToOldest } from "../Actions/functions";
-
 import LoadingPosts from "../Components/LoadingPosts";
 import { ErrorLoading } from "../Components/Errors";
 import { Post } from "../Components/Post";
+
+import { getPosts } from "../Actions/functions";
+import { sortPostsFromLatestToOldest } from "../Helpers/heperFunctions";
 
 function ProfilePage() {
   const {
@@ -24,9 +25,7 @@ function ProfilePage() {
       {status === "pending" ? <LoadingPosts /> : null}
 
       {status === "success"
-        ? posts.map((post, i) => (
-            <Post profilePage={true} key={i} info={post} />
-          ))
+        ? posts.map((post, i) => <Post key={i} info={post} />)
         : null}
 
       {status === "error" ? (
