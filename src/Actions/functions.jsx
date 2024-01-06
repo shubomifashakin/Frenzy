@@ -230,6 +230,15 @@ export async function updateUserInfo(newInfo) {
 
         supabase.storage.from("Avatars").upload(avatarName, compressedBlob),
       ]);
+
+      //if there was an error sending the avatar  to storage
+      if (avatarUploadResponse?.error?.message) {
+        throw new Error(avatarUploadResponse.error.message);
+      }
+      //if there was an error sending the usersinfo to database
+      if (updateResponse?.error?.message) {
+        throw new Error(updateResponse.error.message);
+      }
     }
 
     //if the user is only updating their avatar
@@ -265,5 +274,21 @@ export async function updateUserInfo(newInfo) {
     if (error?.message) {
       throw new Error(error.message);
     }
+  }
+}
+
+//if the update failed
+export async function setBackToCurrentInfo(username, avatarlink) {
+  const {
+    user: { id },
+  } = JSON.parse(localStorage.getItem("sb-jmfwsnwrjdahhxvtvqgq-auth-token"));
+
+  const { data, error } = await supabase
+    .from("UsersInfo")
+    .update({ username, avatar: avatarlink })
+    .eq("id", id);
+
+  if (error?.message) {
+    throw new Error(error.message);
   }
 }

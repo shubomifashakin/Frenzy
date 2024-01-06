@@ -157,9 +157,9 @@ const ProfilePicture = memo(function ProfilePicture({ avatar }) {
     <img
       onClick={showImage}
       src={avatar}
-      className={`h-full w-full ${
+      className={`aspect-square h-full  w-full object-cover ${
         isImageModal ? "grayscale-[100%]" : ""
-      } cursor-pointer rounded-full object-cover hover:grayscale-[25%]`}
+      } cursor-pointer rounded-full object-cover transition-all duration-500  hover:grayscale-[100%]`}
     />
   );
 });

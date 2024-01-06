@@ -219,12 +219,12 @@ const SearchBarDropdown = memo(function SearchBarDropdown({ searchValue }) {
 
   return (
     <div
-      className={`absolute left-0 top-full z-50 flex  w-full  flex-shrink-0 flex-col justify-center divide-y overflow-y-scroll bg-btnHover  transition-all duration-500 ${
+      className={`absolute left-0 top-full z-50 w-full  justify-center divide-y overflow-y-auto  bg-btnHover  transition-all duration-500 ${
         searchValue.length > 2 ? "block" : "hidden"
       }  lg:max-h-72 lg:min-h-20  `}
     >
       {!data?.length && isSuccess ? (
-        <p className="text-center font-semibold text-primaryBgColor">
+        <p className="flex h-32 items-center justify-center text-center font-semibold text-primaryBgColor">
           No users found
         </p>
       ) : null}
@@ -234,7 +234,7 @@ const SearchBarDropdown = memo(function SearchBarDropdown({ searchValue }) {
         : null}
 
       {isPending ? (
-        <p className="text-center font-semibold text-primaryBgColor">
+        <p className="flex h-32 items-center justify-center text-center font-semibold text-primaryBgColor">
           Searching
         </p>
       ) : null}
@@ -243,12 +243,22 @@ const SearchBarDropdown = memo(function SearchBarDropdown({ searchValue }) {
 });
 
 function FoundUser({ user }) {
+  const { avatar } = user;
+  const username = user.username.replaceAll('"', "");
   return (
     <Link
       to={`/${user.id}`}
-      className="h-32 w-full flex-shrink-0 rounded-sm  px-2 py-4 font-semibold text-primaryBgColor transition-all  duration-500 hover:bg-orangeColor"
+      className="relative flex h-32 w-full flex-shrink-0 flex-grow-0 items-center space-x-4  rounded-sm p-4 font-semibold text-primaryBgColor transition-all  duration-500 hover:bg-orangeColor"
     >
-      {user.username.slice(1, user.username.length - 1)}
+      <div className="h-full">
+        <img
+          src={avatar}
+          className="aspect-square h-full rounded-full object-cover"
+        />
+      </div>
+      <div>
+        <p> {username}</p>
+      </div>
     </Link>
   );
 }

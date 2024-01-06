@@ -118,10 +118,10 @@ function HoverUserNameModal({ userId }) {
         !error &&
         !postsError ? (
           <div className="flex h-full w-full space-x-1  p-2">
-            <section className="h-full ">
+            <section className="h-full rounded-full">
               <img
                 src={data.avatar}
-                className="h-full rounded-full object-cover"
+                className="aspect-square h-full rounded-full object-cover"
               />
             </section>
 
@@ -185,13 +185,13 @@ function PostImage({ image, isShowingImage, setShowImage }) {
       <div
         className={` ${
           isShowingImage ? "flex" : "hidden"
-        }  max-h-60 w-full justify-center px-3 py-6 `}
+        }  max-h-60 w-full justify-center px-3 py-4 `}
       >
         <img
           onClick={showFullImage}
           className={`w-full cursor-pointer object-contain ${
             isImageModal ? "grayscale-[100%]" : ""
-          }`}
+          } transition-all duration-300 hover:scale-110`}
           src={image}
         />
       </div>

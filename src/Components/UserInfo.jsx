@@ -5,7 +5,12 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { FiEdit } from "react-icons/fi";
 
-import { getPosts, getUsersInfo, updateUserInfo } from "../Actions/functions";
+import {
+  getPosts,
+  getUsersInfo,
+  setBackToCurrentInfo,
+  updateUserInfo,
+} from "../Actions/functions";
 
 import LoadingUsersInfo from "./LoadingUsersInfo";
 import { ErrorLoading } from "./Errors";
@@ -40,7 +45,7 @@ export function UserInfo() {
     <>
       {status === "pending" ? <LoadingUsersInfo /> : null}
       {status === "success" && !isEditingUserInfo ? (
-        <div className=" bg-sideColor px-4  py-5">
+        <div className=" animate-flash bg-sideColor px-4  py-5">
           <div className=" flex flex-col   items-center justify-between space-y-2 ">
             <ProfilePicture
               avatar={data.avatar}
@@ -79,6 +84,7 @@ export function UserInfo() {
 
       {isEditingUserInfo && status === "success" ? (
         <EditUserInfo
+          currentUsername={data.username}
           currentImage={data.avatar}
           isEditing={isEditingUserInfo}
           setIsEditing={toggleEditUserInfo}
@@ -150,14 +156,14 @@ const UserJoined = memo(function UserJoined({ date }) {
   return <p className="text-center  text-xs">Joined {formattedDate}</p>;
 });
 
-function EditUserInfo({ setIsEditing, currentImage }) {
+function EditUserInfo({ setIsEditing, currentImage, currentUsername }) {
   const [avatar, setAvatar] = useState(null);
 
   const { register, formState, handleSubmit, reset } = useForm();
   const { errors } = formState;
 
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: updateUserInfo,
     onSuccess: () => {
       toast.success("Update Successful");
@@ -168,6 +174,8 @@ function EditUserInfo({ setIsEditing, currentImage }) {
     },
 
     onError: (err) => {
+      //if anything failed, set the values in the database back to what we had before
+      setBackToCurrentInfo(currentUsername, currentImage);
       toast.error(err.message);
     },
   });
@@ -176,6 +184,7 @@ function EditUserInfo({ setIsEditing, currentImage }) {
     const { username } = newInfo;
     if (!username && !avatar) {
       setIsEditing(false);
+      return;
     }
     const infoToUpload = { username, avatar };
     mutate(infoToUpload);
@@ -183,53 +192,21 @@ function EditUserInfo({ setIsEditing, currentImage }) {
 
   return (
     <div
-      className=" bg-sideColor px-4  py-5"
+      className=" animate-flash bg-sideColor px-4  py-5"
       onClick={(e) => e.stopPropagation()}
     >
-      <h1>Edit Profile</h1>
+      <h1 className="font-semibold">Edit Profile</h1>
       <form
         className="flex w-full flex-col items-center space-y-4 "
         onSubmit={handleSubmit(updateInfo)}
       >
         <EditImage currentImage={currentImage} setAvatar={setAvatar} />
 
-        <div className="relative rounded-sm border-2 border-black bg-orangeColor">
-          <input
-            id="username"
-            type="text"
-            className={`peer w-full bg-orangeColor px-2 pb-0.5  pt-4 font-semibold text-white outline-none  transition-colors duration-300 ${
-              errors?.username ? "focus:bg-red-600" : "focus:bg-btnHover"
-            } `}
-            {...register("username", {
-              minLength: { value: 6, message: "at least 6 characters" },
-              maxLength: {
-                value: 12,
-                message: "6-12 characters only",
-              },
-              pattern: {
-                value: /^[a-zA-Z0-9_]+$/,
-                message: "alphanumeric only",
-              },
-            })}
-          />
+        <EditUsername register={register} errors={errors} />
 
-          {errors?.username?.message ? (
-            <p className=" absolute  left-2  top-1 text-xs font-semibold text-white transition-all duration-300 peer-focus:top-0 peer-focus:opacity-75">
-              {errors.username.message}
-            </p>
-          ) : null}
-
-          {!errors?.username ? (
-            <label
-              htmlFor="username"
-              className=" font-base  absolute  left-2 top-1 text-xs text-white transition-all duration-300 peer-focus:top-0 peer-focus:opacity-75"
-            >
-              new username
-            </label>
-          ) : null}
-        </div>
-
-        <Button width={"w-full"}>Update</Button>
+        <Button width={"w-full"} isPending={isPending}>
+          Update
+        </Button>
       </form>
     </div>
   );
@@ -267,6 +244,46 @@ function EditImage({ setAvatar, currentImage }) {
       <p className="absolute left-1/2 top-1/2 translate-x-[-50%] translate-y-[-50%] cursor-pointer text-xl font-semibold text-white">
         Click
       </p>
+    </div>
+  );
+}
+
+function EditUsername({ register, errors }) {
+  return (
+    <div className="relative rounded-sm border border-black bg-orangeColor">
+      <input
+        id="username"
+        type="text"
+        className={`peer w-full bg-orangeColor px-2 pb-0.5  pt-4 font-semibold text-white outline-none  transition-colors duration-300 ${
+          errors?.username ? "focus:bg-red-600" : "focus:bg-btnHover"
+        } `}
+        {...register("username", {
+          minLength: { value: 6, message: "at least 6 characters" },
+          maxLength: {
+            value: 12,
+            message: "6-12 characters only",
+          },
+          pattern: {
+            value: /^[a-zA-Z0-9_]+$/,
+            message: "alphanumeric only",
+          },
+        })}
+      />
+
+      {errors?.username?.message ? (
+        <p className=" absolute  left-2  top-1 text-xs font-semibold text-white transition-all duration-300 peer-focus:top-0 peer-focus:opacity-75">
+          {errors.username.message}
+        </p>
+      ) : null}
+
+      {!errors?.username ? (
+        <label
+          htmlFor="username"
+          className=" font-base  absolute  left-2 top-1 text-xs text-white transition-all duration-300 peer-focus:top-0 peer-focus:opacity-75"
+        >
+          new username
+        </label>
+      ) : null}
     </div>
   );
 }
