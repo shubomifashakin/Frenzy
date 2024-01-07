@@ -107,6 +107,23 @@ export async function findUsers(info) {
   return Users;
 }
 
+export async function getUsersPostsInf({ id, number = 0 }) {
+  console.log(number);
+  let { data: Posts, error } = await supabase
+    .from("Posts")
+    .select("*")
+    .eq("user_id", id)
+    .order("created_at", { ascending: false })
+    .limit(10)
+    .range(0 + number, 9 + number);
+
+  if (error?.message) {
+    throw new Error(error.message);
+  }
+
+  return Posts;
+}
+
 //uploads or send to db
 export async function uploadPost(postDetails) {
   const { id: user_id, username: newUsername } = JSON.parse(
@@ -152,7 +169,7 @@ export async function uploadPost(postDetails) {
 
     //send the data to the posts & images to the Table
     const [posts, images] = await Promise.all([
-      supabase.from("Posts").insert(postInfo),
+      supabase.from("Posts").insert(postInfo).select(),
       supabase.storage.from("postImages").upload(imageName, compressedBlob),
     ]);
 
@@ -164,6 +181,8 @@ export async function uploadPost(postDetails) {
     if (images?.error?.message) {
       throw new Error(images.error.message);
     }
+
+    return posts.data;
   }
 
   //images are not compulsory to upload, so if the user didnt upload an image
@@ -172,11 +191,16 @@ export async function uploadPost(postDetails) {
     postInfo = { user_id, content, username };
 
     //send the posts data to the table
-    const { data, error } = await supabase.from("Posts").insert(postInfo);
+    const { data, error } = await supabase
+      .from("Posts")
+      .insert(postInfo)
+      .select();
 
     if (error?.message) {
       throw new Error(error.message);
     }
+
+    return data;
   }
 }
 

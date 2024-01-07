@@ -62,9 +62,7 @@ function AppLayout() {
           <Timer /> */}
         </Sidebars>
 
-        <main className=" col-start-2  h-full  overflow-auto border-tertiaryColor lg:border-x">
-          <Outlet />
-        </main>
+        <Outlet />
 
         <Sidebars colNo={3} height={"full"} sideColor={true} />
 

@@ -6,7 +6,7 @@ import { FaRegImages } from "react-icons/fa6";
 import { uploadPost } from "../Actions/functions";
 import { UserContext } from "./AppLayout";
 
-function SendPost() {
+function SendPost({ dispatch }) {
   const imgRef = useRef(null);
   const contentRef = useRef(null);
 
@@ -23,8 +23,9 @@ function SendPost() {
   const { mutate, isPending } = useMutation({
     mutationFn: uploadPost,
 
-    onSuccess: function () {
+    onSuccess: function (data) {
       toast.success("Post Was Sent");
+
       queryClient.invalidateQueries(["posts", "allPosts"]);
 
       //clear the post content
@@ -34,6 +35,8 @@ function SendPost() {
 
       setChars(0);
       setError("");
+      //add the new post to the posts array
+      dispatch({ label: "newPosts", payload: data });
     },
 
     onError: function (error) {
