@@ -6,10 +6,10 @@ import { getSinglePost } from "../Actions/functions";
 import LoadingPosts from "../Components/LoadingPosts";
 import { Post } from "../Components/Post";
 import { ErrorLoading } from "../Components/Errors";
+import Main from "../Components/Main";
 
 function UserPost() {
   const { postId } = useParams();
-  console.log(postId);
   const {
     isFetching,
     isLoading,
@@ -25,7 +25,7 @@ function UserPost() {
   });
 
   return (
-    <div className="w-full space-y-4  p-5 lg:mt-0 ">
+    <Main>
       {isFetching || isLoading || isRefetching ? (
         <LoadingPosts numOfLoaders={1} />
       ) : null}
@@ -45,7 +45,7 @@ function UserPost() {
       {error ? (
         <ErrorLoading message={error.message} retryFn={refetch} />
       ) : null}
-    </div>
+    </Main>
   );
 }
 

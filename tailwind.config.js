@@ -32,6 +32,8 @@ export default {
         orangeColor: "#f45f31",
         orangeLight: "#f45f31c0",
 
+        isSending: "rgb(251 146 60)",
+        isError: "rgb(220 38 38 )",
         lightBlack: "#000000e8",
       },
     },

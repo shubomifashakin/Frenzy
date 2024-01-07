@@ -4,10 +4,10 @@ import LoadingPosts from "../Components/LoadingPosts";
 import { ErrorLoading } from "../Components/Errors";
 import { Post } from "../Components/Post";
 
-import { getUsersPostsInf } from "../Actions/functions";
-import { sortPostsFromLatestToOldest } from "../Helpers/heperFunctions";
+import { getAllPostsByUsers } from "../Actions/functions";
 import SendPost from "../Components/SendPost";
 import { useCallback, useEffect, useReducer, useRef } from "react";
+import Main from "../Components/Main";
 
 const initialState = {
   loading: false,
@@ -26,55 +26,51 @@ function Reducer(state, { payload, label }) {
     return { ...state, loading: false, error: payload };
   }
 
-  if (label === "newPosts") {
+  if (label === "oldPosts") {
     return { ...state, data: [...state.data, ...payload] };
+  }
+
+  if (label === "newPost") {
+    return { ...state, data: [...payload, ...state.data] };
   }
 }
 
-function ProfilePage() {
-  const {
-    user: { id },
-  } = JSON.parse(localStorage.getItem("sb-jmfwsnwrjdahhxvtvqgq-auth-token"));
+function ExplorePage() {
+  const mainRef = useRef(null);
+  const numberRef = useRef(10);
 
-  const [{ loading, error, data }, dispatch] = useReducer(
+  const [{ loading, error, data: posts }, dispatch] = useReducer(
     Reducer,
     initialState,
   );
 
   const queryClient = useQueryClient();
-
   const { mutate, isPending } = useMutation({
-    mutationFn: getUsersPostsInf,
+    mutationFn: getAllPostsByUsers,
 
     onSuccess: (data) => {
-      dispatch({ label: "newPosts", payload: data });
+      queryClient.invalidateQueries(["allPosts"]);
 
-      queryClient.invalidateQueries(["usersPosts"]);
-
-      //only increment the ref if the scroll actually returned something
-      if (data.length > 0) numberRef.current += 10;
+      //only increment the ref if the scroll actually returned more oold posts & we were scrolling down
+      if (data.Posts.length > 0 && data.number) {
+        //add the newly fetched posts to the data
+        dispatch({ label: "oldPosts", payload: data.Posts });
+        numberRef.current += 10;
+      }
     },
   });
 
-  const posts = data ? sortPostsFromLatestToOldest(data) : [];
+  const fetchPosts = useCallback(async function () {
+    try {
+      dispatch({ label: "isLoading" });
+      const data = await getAllPostsByUsers();
+      dispatch({ label: "isFetched", payload: data.Posts });
+    } catch (err) {
+      dispatch({ label: "isError", payload: err.message });
+    }
+  }, []);
 
-  const mainRef = useRef(null);
-  const numberRef = useRef(10);
-
-  const fetchPosts = useCallback(
-    async function () {
-      try {
-        dispatch({ label: "isLoading" });
-        const data = await getUsersPostsInf({ id });
-        dispatch({ label: "isFetched", payload: data });
-      } catch (err) {
-        dispatch({ label: "isError", payload: err.message });
-      }
-    },
-    [id],
-  );
-
-  //fetches the latest 10 posts on mount
+  //fetches the 10 latests posts on mount
   useEffect(
     function () {
       fetchPosts();
@@ -82,47 +78,48 @@ function ProfilePage() {
     [fetchPosts],
   );
 
+  //adds a scroll event listener on mount,
+  //if the user scrolls to the last post fetch more
   useEffect(
     function () {
-      mainRef.current.addEventListener("scroll", function () {
-        //if we reach the end of the container, fetch 10 more
+      const element = mainRef.current;
+      function scrollFn() {
         if (
-          mainRef.current.scrollTop ===
-          mainRef.current.scrollHeight - mainRef.current.clientHeight
+          element.scrollTop === element.scrollHeight - element.clientHeight &&
+          !isPending
         ) {
-          mutate({ id, number: numberRef.current });
+          mutate(numberRef.current);
         }
-      });
+      }
+
+      element.addEventListener("scroll", scrollFn);
+
+      return () => element.removeEventListener("scroll", scrollFn);
     },
-    [id, mutate],
+    [mutate, isPending],
   );
 
   return (
-    <main
-      ref={mainRef}
-      className="   col-start-2 h-full overflow-auto border-tertiaryColor lg:border-x"
-    >
-      <div className="relative w-full space-y-4 p-5 lg:mt-0 ">
-        {loading ? <LoadingPosts /> : null}
+    <Main mainRef={mainRef}>
+      {loading ? <LoadingPosts /> : null}
 
-        {!loading && !error ? (
-          <>
-            <SendPost dispatch={dispatch} />
-            {posts.map((post, i) => (
-              <Post key={i} info={post} />
-            ))}
-          </>
-        ) : null}
+      {!loading && !error ? (
+        <>
+          <SendPost dispatch={dispatch} />
+          {posts.map((post, i) => (
+            <Post key={i} info={post} />
+          ))}
+        </>
+      ) : null}
 
-        {error ? <ErrorLoading retryFn={fetchPosts} message={error} /> : null}
-        {isPending ? (
-          <p className="absolute bottom-0 left-1/2 translate-x-[-50%] text-xs  ">
-            Loading More
-          </p>
-        ) : null}
-      </div>
-    </main>
+      {error ? <ErrorLoading retryFn={fetchPosts} message={error} /> : null}
+      {isPending ? (
+        <p className="absolute bottom-0 left-1/2 translate-x-[-50%] text-xs  ">
+          Loading More
+        </p>
+      ) : null}
+    </Main>
   );
 }
 
-export default ProfilePage;
+export default ExplorePage;

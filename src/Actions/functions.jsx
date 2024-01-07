@@ -71,16 +71,6 @@ export async function getUsersInfo(id) {
   return UsersInfo[0];
 }
 
-export async function getAllPostsByUsers() {
-  let { data: Posts, error } = await supabase.from("Posts").select("*");
-
-  if (error?.message) {
-    throw new Error(error.message);
-  }
-
-  return Posts;
-}
-
 export async function getSinglePost(postId) {
   let { data: Posts, error } = await supabase
     .from("Posts")
@@ -108,7 +98,6 @@ export async function findUsers(info) {
 }
 
 export async function getUsersPostsInf({ id, number = 0 }) {
-  console.log(number);
   let { data: Posts, error } = await supabase
     .from("Posts")
     .select("*")
@@ -122,6 +111,21 @@ export async function getUsersPostsInf({ id, number = 0 }) {
   }
 
   return Posts;
+}
+
+export async function getAllPostsByUsers(number = 0) {
+  let { data: Posts, error } = await supabase
+    .from("Posts")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(10)
+    .range(0 + number, 9 + number);
+
+  if (error?.message) {
+    throw new Error(error.message);
+  }
+
+  return { Posts, number };
 }
 
 //uploads or send to db

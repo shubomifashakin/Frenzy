@@ -36,7 +36,7 @@ function SendPost({ dispatch }) {
       setChars(0);
       setError("");
       //add the new post to the posts array
-      dispatch({ label: "newPosts", payload: data });
+      dispatch({ label: "newPost", payload: data });
     },
 
     onError: function (error) {
@@ -106,11 +106,13 @@ function SendPost({ dispatch }) {
       onDragLeave={hanldeDragLeave}
       onDrop={handleDrop}
       className={`relative hidden w-full ${
-        isDragging ? "bg-orange-400" : ""
-      } space-y-2 border-none bg-secondaryColor px-4 py-4 transition-colors duration-300 lg:block`}
+        isDragging || isPending ? "bg-isSending" : "bg-secondaryColor"
+      } ${
+        isPending && "animate-flasInfinite"
+      } space-y-2 border-none  px-4 py-4 transition-colors duration-300 lg:block`}
     >
       {(!chars || chars > 300) && error ? (
-        <p className="text-xs text-red-600">{error}</p>
+        <p className="text-isError text-xs">{error}</p>
       ) : (
         <p className="text-xs text-black">Talk to your frenzies...</p>
       )}
@@ -125,7 +127,7 @@ function SendPost({ dispatch }) {
         <div className="flex items-center space-x-2">
           <span
             className={`text-right text-xs ${
-              chars > 300 ? "text-red-600" : ""
+              chars > 300 ? "text-isError" : ""
             }`}
           >
             {chars}/300

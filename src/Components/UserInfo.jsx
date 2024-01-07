@@ -39,7 +39,13 @@ export function UserInfo() {
     queryFn: () => getUsersInfo(id),
   });
 
-  const { data: postsData } = useQuery({
+  //fetches the users posts on mount
+  const {
+    data: postsData,
+    refetch: refetchPosts,
+    error: postsErr,
+    isLoading,
+  } = useQuery({
     queryKey: ["usersPosts"],
     queryFn: () => getPosts(id),
   });
@@ -66,11 +72,22 @@ export function UserInfo() {
               <p className="text-sm font-semibold">
                 {postsData.length} {postsData.length !== 1 ? "Posts" : "Post"}
               </p>
-            ) : (
+            ) : null}
+
+            {isLoading ? (
               <p className="text-xs font-semibold text-orangeColor">
                 Loading Posts
               </p>
-            )}
+            ) : null}
+
+            {postsErr?.message ? (
+              <button
+                className="text-sm text-red-700 hover:text-orangeColor"
+                onClick={refetchPosts}
+              >
+                Try Again
+              </button>
+            ) : null}
           </div>
 
           <div className="= flex items-center justify-evenly space-x-4 py-4 ">
@@ -202,7 +219,11 @@ function EditUserInfo({ setIsEditing, currentImage, currentUsername }) {
 
   return (
     <div
-      className=" animate-flash bg-sideColor px-4  py-5"
+      className={`  px-4  py-5  ${
+        isPending
+          ? "bg-isSending animate-flasInfinite"
+          : "animate-flash bg-sideColor "
+      }`}
       onClick={(e) => e.stopPropagation()}
     >
       <h1 className="font-semibold">Edit Profile</h1>

@@ -10,6 +10,7 @@ import { Post } from "../Components/Post";
 import { UserContext } from "../Components/AppLayout";
 
 import { getPosts, getUsersInfo } from "../Actions/functions";
+import Main from "../Components/Main";
 
 function UserPage() {
   //get the userId from the params
@@ -63,7 +64,7 @@ function UserPage() {
   );
 
   return (
-    <div className="w-full space-y-4  p-5 lg:mt-0 ">
+    <Main>
       {/**one of them is fetching or loading and both have no errors */}
       {(usersIsFetching ||
         postsIsFetching ||
@@ -96,7 +97,7 @@ function UserPage() {
           message={postsError?.message || userError?.message}
         />
       ) : null}
-    </div>
+    </Main>
   );
 }
 
