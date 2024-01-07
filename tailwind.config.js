@@ -24,6 +24,7 @@ export default {
       colors: {
         primaryBgColor: "#FFFFE8",
         secondaryColor: "#f5cea5",
+        secondaryColorDark: "#d6b490",
         tertiaryColor: "#d3d3d3",
 
         sideColor: "#ece0d2",
@@ -31,7 +32,7 @@ export default {
         orangeColor: "#f45f31",
         orangeLight: "#f45f31c0",
 
-        lightBlack: "#000000bd",
+        lightBlack: "#000000e8",
       },
     },
   },

@@ -65,6 +65,9 @@ export async function getUsersInfo(id) {
     throw new Error(error.message);
   }
 
+  //everytime we get the usersinfo we set it
+  localStorage.setItem("frenzyUser", JSON.stringify(UsersInfo[0]));
+
   return UsersInfo[0];
 }
 
@@ -106,7 +109,12 @@ export async function findUsers(info) {
 
 //uploads or send to db
 export async function uploadPost(postDetails) {
-  const { image, postContent: content, id: user_id, username } = postDetails;
+  const { id: user_id, username: newUsername } = JSON.parse(
+    localStorage.getItem("frenzyUser"),
+  );
+
+  const username = newUsername.replaceAll('"', "");
+  const { image, postContent: content } = postDetails;
 
   let postInfo;
   let compressedBlob;

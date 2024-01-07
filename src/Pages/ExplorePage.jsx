@@ -7,6 +7,7 @@ import { Post } from "../Components/Post";
 import { getAllPostsByUsers } from "../Actions/functions";
 
 import { sortPostsFromLatestToOldest } from "../Helpers/heperFunctions";
+import SendPost from "../Components/SendPost";
 
 function ExplorePage() {
   //get posts from all users
@@ -20,9 +21,14 @@ function ExplorePage() {
   return (
     <div className="w-full space-y-4  p-5 lg:mt-0 ">
       {status === "pending" ? <LoadingPosts /> : null}
-      {status === "success"
-        ? posts.map((post, i) => <Post key={i} info={post} />)
-        : null}
+      {status === "success" ? (
+        <>
+          <SendPost />
+          {posts.map((post, i) => (
+            <Post key={i} info={post} />
+          ))}
+        </>
+      ) : null}
       {status === "error" ? (
         <ErrorLoading retryFn={refetch} message={error.message} />
       ) : null}

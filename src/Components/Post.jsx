@@ -160,8 +160,6 @@ function TimeOfPost({ time }) {
 function PostContent({ content, postId, isPostPage, image }) {
   const navigate = useNavigate();
 
-  console.log(image);
-
   function goToPostPage() {
     if (isPostPage) return;
     navigate(`/post/${postId}`);
@@ -169,7 +167,9 @@ function PostContent({ content, postId, isPostPage, image }) {
   return (
     <p
       onClick={goToPostPage}
-      className={`min-h-10 ${!isPostPage ? "cursor-pointer" : null}  px-2 ${
+      className={`min-h-10 ${
+        !isPostPage ? "cursor-pointer hover:bg-secondaryColorDark" : null
+      }  px-2 transition-colors  duration-300 ${
         image ? "pb-3 pt-4" : "py-5"
       }  font-normal  text-black `}
     >

@@ -71,24 +71,6 @@ export const CreatePosts = memo(function CreatePosts({
     }
   }
 
-  //prevents default behaviour for drag and drop
-  //this prevents the browser from opening the image we drop
-  useEffect(function () {
-    function fns(e) {
-      e = e || event;
-      e.preventDefault();
-    }
-
-    window.addEventListener("dragover", fns, false);
-
-    window.addEventListener("drop", fns, false);
-
-    return () => {
-      window.removeEventListener("dragover", fns);
-      window.removeEventListener("drop", fns);
-    };
-  }, []);
-
   return (
     <>
       {/**only show the modal if the user was fetched */}
@@ -137,7 +119,7 @@ function PostContainer({ children, isCreatePost }) {
     <div
       className={`animate-flash ease-in-out  ${
         isCreatePost ? "block" : "hidden"
-      } absolute left-0 top-0 flex h-full w-full items-center justify-center  shadow-sm shadow-secondaryColor backdrop-blur-[2px]`}
+      } absolute left-0 top-0 flex h-full w-full items-center justify-center shadow-sm  shadow-secondaryColor backdrop-blur-[2px] lg:hidden`}
     >
       {children}
     </div>
