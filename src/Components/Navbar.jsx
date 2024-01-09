@@ -7,7 +7,7 @@ import { FaCaretLeft, FaCaretRight } from "react-icons/fa6";
 
 import { findUsers, logOutUser } from "../Actions/functions";
 
-import { UserContext } from "./AppLayout";
+import { UIContext } from "./AppLayout";
 
 function Navbar() {
   function CloseSearch(e) {
@@ -16,7 +16,7 @@ function Navbar() {
   }
 
   const { mobileNav, toggleMobileNav, setSearchValue, searchValue } =
-    useContext(UserContext);
+    useContext(UIContext);
 
   return (
     <nav
@@ -30,7 +30,7 @@ function Navbar() {
         Frenzy
       </NavItem>
       <NavItem path={"profile"}>Profile</NavItem>
-      <NavItem path={"timeline"}>Timeline</NavItem>
+      <NavItem path={"notifications"}>Notifications</NavItem>
       <NavItem path={"explore"}>Explore</NavItem>
       <LogOutBtn />
       {/* <Timer /> */}
@@ -59,52 +59,6 @@ const MobileNavTrigger = memo(function MobileNavTrigger({
       ) : (
         <FaCaretRight display={"inline"} fontSize={"2rem"} />
       )}
-    </div>
-  );
-});
-
-const Timer = memo(function Timer() {
-  const timeHad = 60 * 1000 * 60 * 2;
-  const [timeLeft, setTimeLeft] = useState(timeHad);
-  let hours = Math.floor(timeLeft / 3600000);
-  let minutes = Math.floor((timeLeft % 3600000) / 60000);
-  let seconds = Math.floor((timeLeft % 60000) / 1000);
-
-  const lessThan1hour = timeLeft < 60 * 1000 * 60;
-  const lessThan30mins = timeLeft < 60 * 1000 * 30;
-
-  // Add leading zeros if needed
-  hours = hours < 10 ? "0" + hours : hours;
-  minutes = minutes < 10 ? "0" + minutes : minutes;
-  seconds = seconds < 10 ? "0" + seconds : seconds;
-
-  const navigate = useNavigate();
-
-  useEffect(function () {
-    const intervalId = setInterval(function () {
-      if (timeLeft) {
-        setTimeLeft((c) => c - 1000);
-      } else {
-        logOutUser();
-
-        navigate("/");
-      }
-    }, 1000);
-
-    return () => clearInterval(intervalId);
-  });
-
-  return (
-    <div className="order-4 lg:hidden">
-      <p
-        className={` text-2xl font-bold md:text-3xl lg:text-base ${
-          lessThan1hour ? "text-red-500" : ""
-        } ${
-          lessThan30mins ? "text-red-600" : ""
-        } transition-colors duration-500 ease-in-out`}
-      >
-        {hours}:{minutes}:{seconds}
-      </p>
     </div>
   );
 });

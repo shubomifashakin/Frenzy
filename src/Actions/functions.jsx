@@ -1,6 +1,6 @@
-import Compressor from "compressorjs";
-import { supabase } from "../Supabase/supabase";
 import { trimWord } from "../Helpers/heperFunctions";
+import { supabase } from "../Supabase/supabase";
+import Compressor from "compressorjs";
 
 export async function logInUser(userInfo) {
   const {
@@ -65,9 +65,6 @@ export async function getUsersInfo(id) {
     throw new Error(error.message);
   }
 
-  //everytime we get the usersinfo we set it
-  localStorage.setItem("frenzyUser", JSON.stringify(UsersInfo[0]));
-
   return UsersInfo[0];
 }
 
@@ -128,14 +125,28 @@ export async function getAllPostsByUsers(number = 0) {
   return { Posts, number };
 }
 
+export async function getRepliesToPost({ id, number = 0 }) {
+  let { data: Comments, error } = await supabase
+    .from("Comments")
+    .select("*")
+    .eq("post_id", id)
+    .order("created_at", { ascending: false })
+    .limit(10)
+    .range(0 + number, 9 + number);
+
+  if (error?.message) {
+    throw new Error(error.message);
+  }
+
+  return Comments;
+}
+
 //uploads or send to db
 export async function uploadPost(postDetails) {
-  const { id: user_id, username: newUsername } = JSON.parse(
-    localStorage.getItem("frenzyUser"),
-  );
+  //users info
+  const { username: newUsername, image, content, user_id } = postDetails;
 
   const username = newUsername.replaceAll('"', "");
-  const { image, postContent: content } = postDetails;
 
   let postInfo;
   let compressedBlob;
@@ -205,6 +216,87 @@ export async function uploadPost(postDetails) {
     }
 
     return data;
+  }
+}
+
+export async function uploadReply(commentDetails) {
+  const { image, content, postId: post_id, user_id, username } = commentDetails;
+
+  const newUsername = username.replaceAll('"', "");
+
+  let commentInfo;
+  let compressedBlob;
+  let imageName;
+
+  //if the user uploaded an image
+  if (image) {
+    //create a unique image name
+    imageName = image.name.replaceAll(/[./?()]/gi, "") + Date.now();
+
+    //compress the image, returns the compressed file
+    compressedBlob = await new Promise((resolve, reject) => {
+      new Compressor(image, {
+        quality: 1, // Adjust the desired image quality (0.0 - 1.0)
+        maxWidth: 1100, // Adjust the maximum width of the compressed image
+        maxHeight: 800, // Adjust the maximum height of the compressed image
+        mimeType: "image/jpeg", // Specify the output image format
+
+        success(result) {
+          resolve(result);
+        },
+
+        //if the compression failed, it returns an error that is caught in the catch block
+        error(error) {
+          reject(error);
+        },
+      });
+    });
+
+    //if compression worked, form the link to the image in supabase storage
+    const imageUrl = `https://jmfwsnwrjdahhxvtvqgq.supabase.co/storage/v1/object/public/postImages/${imageName}`;
+
+    //the comment data we want to send to the database
+    commentInfo = {
+      image: imageUrl,
+      user_id,
+      content,
+      username: newUsername,
+      post_id,
+    };
+
+    //send the comments to the table & images to the storage
+    const [comments, images] = await Promise.all([
+      supabase.from("Comments").insert(commentInfo).select(),
+      supabase.storage.from("postImages").upload(imageName, compressedBlob),
+    ]);
+
+    //if there was an error sending the comment to database, throw it
+    if (comments?.error?.message) {
+      throw new Error(comments.error.message);
+    }
+
+    //if there was an error sending the image  to storage, throw it
+    if (images?.error?.message) {
+      throw new Error(images.error.message);
+    }
+
+    return comments.data;
+  }
+
+  //no image
+  else {
+    commentInfo = { user_id, content, username: newUsername, post_id };
+
+    const { data: newComment, error } = await supabase
+      .from("Comments")
+      .insert(commentInfo)
+      .select();
+
+    if (error?.message) {
+      throw new Error(error.message);
+    }
+
+    return newComment;
   }
 }
 

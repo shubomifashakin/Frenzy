@@ -7,10 +7,9 @@ import CreatePosts from "./CreatePosts";
 import Sidebars from "./Sidebars";
 import { UserInfo } from "./UserInfo";
 
-import { Timer } from "./Timer";
 import ImageModal from "./ImageModal";
 
-export const UserContext = createContext(null);
+export const UIContext = createContext(null);
 function AppLayout() {
   const [mobileNav, toggleMobileNav] = useState(false);
   const [isCreatePost, toggleCreatePost] = useState(false);
@@ -34,7 +33,7 @@ function AppLayout() {
   }
 
   return (
-    <UserContext.Provider
+    <UIContext.Provider
       value={{
         mobileNav,
         isCreatePost,
@@ -66,11 +65,6 @@ function AppLayout() {
 
         <Sidebars colNo={3} height={"full"} sideColor={true} />
 
-        <CreatePosts
-          isCreatePost={isCreatePost}
-          toggleCreatePost={toggleCreatePost}
-        />
-
         <ImageModal
           isImageModal={isImageModal}
           toggleImageModal={toggleImageModal}
@@ -83,7 +77,7 @@ function AppLayout() {
           toggleEditUserInfo={toggleEditUserInfo}
         />
       </div>
-    </UserContext.Provider>
+    </UIContext.Provider>
   );
 }
 

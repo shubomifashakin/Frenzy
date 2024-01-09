@@ -2,14 +2,15 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
+
 import toast from "react-hot-toast";
 
 import { logInUser, signUpUser } from "../Actions/functions";
+import { usernameExists } from "../Helpers/heperFunctions";
 
 import { CheckBox } from "../Components/CheckBox";
 import InputError from "../Components/InputError";
 import { Button } from "../Components/Button";
-import { usernameExists } from "../Helpers/heperFunctions";
 
 function SignInPage() {
   const [checked, setChecked] = useState(false);

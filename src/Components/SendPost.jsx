@@ -1,19 +1,75 @@
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import toast from "react-hot-toast";
+import {
+  memo,
+  useContext,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+} from "react";
+import { useParams } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+import { getUsersInfo, uploadPost, uploadReply } from "../Actions/functions";
+
 import { FaRegImages } from "react-icons/fa6";
+import toast from "react-hot-toast";
 
-import { uploadPost } from "../Actions/functions";
-import { UserContext } from "./AppLayout";
+import { UIContext } from "./AppLayout";
+import LoadingPosts from "./LoadingPosts";
+import { ErrorLoading } from "./Errors";
 
-function SendPost({ dispatch }) {
-  const imgRef = useRef(null);
+const sendLabel = "Talk to your frenzies..";
+const replyLabel = "Reply to Post...";
+
+const initialState = {
+  isDragging: false,
+  file: null,
+  error: "",
+  chars: 0,
+};
+
+function Reducer(state, { label, payload }) {
+  switch (label) {
+    case "isDragging":
+      return { ...state, isDragging: true };
+
+    case "notDragging":
+      return { ...state, isDragging: false };
+
+    case "setFile":
+      return { ...state, isDragging: false, file: payload };
+
+    case "isError":
+      return { ...state, error: payload };
+
+    case "chars":
+      return { ...state, chars: payload };
+
+    case "clearFile":
+      return { ...state, file: null };
+
+    case "reset":
+      return initialState;
+  }
+}
+
+const SendPost = memo(function SendPost({ rDispatch, numberRef, isPostPage }) {
+  const [{ isDragging, file, error: postError, chars }, dispatch] = useReducer(
+    Reducer,
+    initialState,
+  );
+
   const contentRef = useRef(null);
+  const imgRef = useRef(null);
 
-  const [file, setFile] = useState(null);
-  const [error, setError] = useState("");
-  const [chars, setChars] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
+  //get id of the logged in user
+  const {
+    user: { id },
+  } = JSON.parse(localStorage.getItem("sb-jmfwsnwrjdahhxvtvqgq-auth-token"));
+
+  //if there is a postId, we are commenting && not sending a post
+  const { postId } = useParams();
+  const label = postId ? replyLabel : sendLabel;
 
   const reader = useMemo(function () {
     return new FileReader();
@@ -21,22 +77,25 @@ function SendPost({ dispatch }) {
 
   const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
-    mutationFn: uploadPost,
+    mutationFn: postId ? uploadReply : uploadPost,
 
     onSuccess: function (data) {
-      toast.success("Post Was Sent");
+      toast.success(`${postId ? "Reply" : "Post"} Was Sent`);
 
-      queryClient.invalidateQueries(["posts", "allPosts"]);
+      postId
+        ? queryClient.invalidateQueries({ queryKey: ["clickedPost"] })
+        : queryClient.invalidateQueries({ queryKey: ["posts"] });
 
-      //clear the post content
+      //clear the  content
       contentRef.current.textContent = "";
-      //remove the file
-      setFile(null);
 
-      setChars(0);
-      setError("");
-      //add the new post to the posts array
-      dispatch({ label: "newPost", payload: data });
+      dispatch({ label: "reset" });
+
+      //add the new post or reply to the array of the page
+      rDispatch({ label: "newPost", payload: data });
+
+      //increment the number ref in order to exclude the new post we just sent
+      numberRef.current++;
     },
 
     onError: function (error) {
@@ -44,28 +103,48 @@ function SendPost({ dispatch }) {
     },
   });
 
+  //fetch the logged in users information on mount or use already fetched info
+  const {
+    data,
+    status,
+    error: userInfoError,
+    refetch,
+  } = useQuery({
+    queryKey: ["userinfo"],
+    queryFn: () => getUsersInfo(id),
+  });
+
   function handleDragOver() {
-    setIsDragging(true);
+    dispatch({ label: "isDragging" });
   }
 
   function hanldeDragLeave() {
-    setIsDragging(false);
+    dispatch({ label: "notDragging" });
   }
 
   function handleDrop(e) {
     const selectedFile = e.dataTransfer.files[0];
     reader.readAsDataURL(selectedFile);
-    setFile(selectedFile);
-    setIsDragging(false);
+
+    dispatch({ label: "setFile", payload: selectedFile });
   }
 
   function SubmitPost() {
     if (chars > 300 || !chars) {
-      setError(chars > 300 ? "Post is too long" : "Post cannot be empty");
+      dispatch({
+        label: "isError",
+        payload: chars > 300 ? "Post is too long" : "Post cannot be empty",
+      });
       return;
     }
 
-    mutate({ image: file, postContent: contentRef.current.textContent });
+    mutate({
+      image: file,
+      content: contentRef.current.textContent,
+      postId,
+      user_id: id,
+      username: data?.username,
+    });
   }
 
   //add the reader listener event for converting files
@@ -83,7 +162,6 @@ function SendPost({ dispatch }) {
   );
 
   //prevents default behaviour for drag and drop
-  //this prevents the browser from opening the image we drop
   useEffect(function () {
     function fns(e) {
       e = e || event;
@@ -100,46 +178,59 @@ function SendPost({ dispatch }) {
     };
   }, []);
 
+  //this does not render until we have fetched information about the logged in user
   return (
-    <div
-      onDragOver={handleDragOver}
-      onDragLeave={hanldeDragLeave}
-      onDrop={handleDrop}
-      className={`relative hidden w-full ${
-        isDragging || isPending ? "bg-isSending" : "bg-secondaryColor"
-      } ${
-        isPending && "animate-flasInfinite"
-      } space-y-2 border-none  px-4 py-4 transition-colors duration-300 lg:block`}
-    >
-      {(!chars || chars > 300) && error ? (
-        <p className="text-isError text-xs">{error}</p>
-      ) : (
-        <p className="text-xs text-black">Talk to your frenzies...</p>
-      )}
+    <>
+      {status === "pending" ? <LoadingPosts numOfLoaders={1} /> : null}
 
-      <TextArea setChars={setChars} contentRef={contentRef} />
+      {status === "success" ? (
+        <div
+          onDragOver={handleDragOver}
+          onDragLeave={hanldeDragLeave}
+          onDrop={handleDrop}
+          className={`relative ${isPostPage ? "block" : "hidden"} w-full ${
+            isDragging || isPending ? "bg-isSending" : "bg-secondaryColor"
+          } ${
+            isPending && "animate-flasInfinite"
+          } space-y-2 border-none  px-4 py-4 transition-colors duration-300 lg:block`}
+        >
+          <Label error={postError} label={label} chars={chars} />
 
-      {file ? <ImageArea imgRef={imgRef} setFile={setFile} /> : null}
+          <TextArea dispatch={dispatch} contentRef={contentRef} />
 
-      <div className="flex items-center justify-between pt-2">
-        <AddImageBtn setFile={setFile} imgRef={imgRef} reader={reader} />
+          {file ? <ImageArea imgRef={imgRef} dispatch={dispatch} /> : null}
 
-        <div className="flex items-center space-x-2">
-          <span
-            className={`text-right text-xs ${
-              chars > 300 ? "text-isError" : ""
-            }`}
-          >
-            {chars}/300
-          </span>
-          <SendPostBtn submitFn={SubmitPost} isPending={isPending} />
+          <div className="flex items-center justify-between pt-2">
+            <AddImageBtn dispatch={dispatch} imgRef={imgRef} reader={reader} />
+
+            <div className="flex items-center space-x-2">
+              <CharsCount chars={chars} />
+              <SendPostBtn submitFn={SubmitPost} isPending={isPending} />
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  );
-}
+      ) : null}
 
-function TextArea({ contentRef, setChars }) {
+      {status === "error" ? (
+        <ErrorLoading retryFn={refetch} message={userInfoError?.message} />
+      ) : null}
+    </>
+  );
+});
+
+const Label = memo(function Label({ chars, label, error }) {
+  return (
+    <>
+      {(!chars || chars > 300) && error ? (
+        <p className="text-xs text-isError">{error}</p>
+      ) : (
+        <p className="text-xs text-black">{label}</p>
+      )}
+    </>
+  );
+});
+
+const TextArea = memo(function TextArea({ contentRef, dispatch }) {
   // Handle paste event to maintain line breaks
   function handlePaste(event) {
     event.preventDefault();
@@ -151,8 +242,11 @@ function TextArea({ contentRef, setChars }) {
   }
 
   //when a key is pressed update our character count
-  function onKey(e) {
-    setChars(contentRef.current.textContent.length);
+  function onKey() {
+    dispatch({
+      label: "chars",
+      payload: contentRef.current.textContent.length,
+    });
   }
 
   return (
@@ -164,14 +258,18 @@ function TextArea({ contentRef, setChars }) {
       className="block max-h-60  w-full overflow-y-auto whitespace-break-spaces bg-transparent outline-none"
     ></div>
   );
-}
+});
 
-function ImageArea({ imgRef, setFile }) {
-  const { toggleImageModal } = useContext(UserContext);
+const ImageArea = memo(function ImageArea({ imgRef, dispatch }) {
+  const { toggleImageModal } = useContext(UIContext);
 
   function toggleModal(e) {
     e.stopPropagation();
     toggleImageModal(e.target.src);
+  }
+
+  function removeImage() {
+    dispatch({ label: "clearFile" });
   }
 
   return (
@@ -185,27 +283,28 @@ function ImageArea({ imgRef, setFile }) {
 
       <span
         className="absolute right-1 top-1 cursor-pointer rounded-full bg-orangeLight p-0.5 px-2 text-center text-sm font-semibold text-white transition-colors duration-300 hover:text-black"
-        onClick={() => setFile(false)}
+        onClick={removeImage}
       >
         X
       </span>
     </div>
   );
-}
+});
 
-function SendPostBtn({ submitFn, isPending }) {
+const SendPostBtn = memo(function SendPostBtn({ submitFn, isPending }) {
+  const { postId } = useParams();
   return (
     <button
       disabled={isPending}
       className="cursor-pointer text-base font-semibold transition-colors duration-300 hover:text-orangeColor disabled:cursor-wait"
       onClick={submitFn}
     >
-      Post
+      {postId ? "Reply" : "Post"}
     </button>
   );
-}
+});
 
-function AddImageBtn({ setFile, reader }) {
+const AddImageBtn = memo(function AddImageBtn({ dispatch, reader }) {
   const fileRef = useRef(null);
 
   function triggerFile(e) {
@@ -216,7 +315,7 @@ function AddImageBtn({ setFile, reader }) {
   function storeSelectedFile(e) {
     const selectedFile = e.target.files[0];
     reader.readAsDataURL(selectedFile);
-    setFile(selectedFile);
+    dispatch({ label: "setFile", payload: selectedFile });
   }
 
   return (
@@ -236,6 +335,14 @@ function AddImageBtn({ setFile, reader }) {
         ref={fileRef}
       />
     </>
+  );
+});
+
+function CharsCount({ chars }) {
+  return (
+    <span className={`text-right text-xs ${chars > 300 ? "text-isError" : ""}`}>
+      {chars}/300
+    </span>
   );
 }
 

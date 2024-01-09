@@ -1,22 +1,41 @@
 import { useQuery } from "@tanstack/react-query";
-import { useContext, useState } from "react";
+import { memo, useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+import { LiaComments } from "react-icons/lia";
+
 import DotLoader from "./DotLoader";
-import { UserContext } from "./AppLayout";
+import { UIContext } from "./AppLayout";
 
 import { getPosts, getUsersInfo } from "../Actions/functions";
 
-export function Post({ info, isPostPage = false, isUserPage = false }) {
-  const [isShowingImage, setShowImage] = useState(false);
-
-  const { user_id: userId, created_at, content, image, id: postId } = info;
+export const Post = memo(function Post({ info, isPostPage, isUserPage }) {
+  const {
+    user_id: userId,
+    created_at,
+    content,
+    image,
+    id: postId,
+    num_comments: comments,
+  } = info;
 
   //we trim the username because it is shipped with quotes "username"
   const username = info.username.replaceAll('"', "");
 
+  const navigate = useNavigate();
+
+  function goToPostPage() {
+    if (isPostPage) return;
+    navigate(`/post/${postId}`);
+  }
+
   return (
-    <div className=" relative bg-secondaryColor">
+    <div
+      onClick={goToPostPage}
+      className={`relative mb-4 bg-secondaryColor  transition-all duration-300 lg:m-0 ${
+        !isPostPage ? "cursor-pointer hover:bg-secondaryColorDark" : null
+      } `}
+    >
       <PostHeader
         userId={userId}
         username={username}
@@ -31,16 +50,14 @@ export function Post({ info, isPostPage = false, isUserPage = false }) {
         postId={postId}
       />
 
-      {image ? (
-        <PostImage
-          image={image}
-          isShowingImage={isShowingImage}
-          setShowImage={setShowImage}
-        />
+      {image ? <PostImage image={image} /> : null}
+
+      {comments || comments === 0 ? (
+        <PostActivity noOfComments={comments} />
       ) : null}
     </div>
   );
-}
+});
 
 function PostHeader({ created_at, username, userId, isUserPage }) {
   const [isHovering, setIsHovering] = useState(false);
@@ -59,6 +76,7 @@ function PostHeader({ created_at, username, userId, isUserPage }) {
 
       {loggedId !== userId && !isUserPage ? (
         <Link
+          onClick={(e) => e.stopPropagation()}
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
           to={`/${userId}`}
@@ -157,19 +175,10 @@ function TimeOfPost({ time }) {
   );
 }
 
-function PostContent({ content, postId, isPostPage, image }) {
-  const navigate = useNavigate();
-
-  function goToPostPage() {
-    if (isPostPage) return;
-    navigate(`/post/${postId}`);
-  }
+function PostContent({ content, image }) {
   return (
     <p
-      onClick={goToPostPage}
-      className={`min-h-10 ${
-        !isPostPage ? "cursor-pointer hover:bg-secondaryColorDark" : null
-      }  px-2 transition-colors  duration-300 ${
+      className={`min-h-10 px-2 transition-colors  duration-300 ${
         image ? "pb-3 pt-4" : "py-5"
       }  font-normal  text-black `}
     >
@@ -178,8 +187,8 @@ function PostContent({ content, postId, isPostPage, image }) {
   );
 }
 
-function PostImage({ image, isShowingImage, setShowImage }) {
-  const { toggleImageModal, isImageModal } = useContext(UserContext);
+const PostImage = memo(function PostImage({ image }) {
+  const { toggleImageModal, isImageModal } = useContext(UIContext);
 
   function showFullImage(e) {
     e.stopPropagation();
@@ -187,26 +196,27 @@ function PostImage({ image, isShowingImage, setShowImage }) {
   }
   return (
     <>
-      <div
-        className={` ${
-          isShowingImage ? "flex" : "hidden"
-        }  max-h-60 w-full justify-center px-3 `}
-      >
+      <div className={` flex max-h-60 w-full justify-center px-3 pb-2 `}>
         <img
           onClick={showFullImage}
           className={`w-full cursor-pointer object-cover ${
             isImageModal ? "grayscale-[100%]" : ""
-          } transition-all duration-300  hover:scale-[1.02]`}
+          } transition-all duration-300  hover:scale-[1.01]`}
           src={image}
         />
       </div>
-
-      <span
-        className="block cursor-pointer  border-t border-primaryBgColor  py-1 text-center text-xs font-semibold text-stone-800  transition-all duration-300 hover:py-1.5 hover:text-orangeLight"
-        onClick={() => setShowImage((c) => !c)}
-      >
-        {isShowingImage ? "Hide" : "Show"} Image
-      </span>
     </>
+  );
+});
+
+function PostActivity({ noOfComments }) {
+  //get the total number of comments
+  return (
+    <div className="flex items-center justify-end space-x-4 px-3 py-1.5">
+      <p className="flex items-center text-sm">
+        <span>{noOfComments}</span>&nbsp;
+        <LiaComments />
+      </p>
+    </div>
   );
 }

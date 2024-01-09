@@ -1,11 +1,12 @@
 import { memo, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { NavLink } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
 import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
-import { FiEdit } from "react-icons/fi";
+
+import { NavLink } from "react-router-dom";
+
 import { FaRegImages } from "react-icons/fa";
+import { FiEdit } from "react-icons/fi";
+import toast from "react-hot-toast";
 
 import {
   getPosts,
@@ -13,12 +14,12 @@ import {
   setBackToCurrentInfo,
   updateUserInfo,
 } from "../Actions/functions";
+import { usernameExists } from "../Helpers/heperFunctions";
 
 import LoadingUsersInfo from "./LoadingUsersInfo";
 import { ErrorLoading } from "./Errors";
-import { UserContext } from "./AppLayout";
+import { UIContext } from "./AppLayout";
 import { Button } from "./Button";
-import { usernameExists } from "../Helpers/heperFunctions";
 
 export function UserInfo() {
   const {
@@ -26,14 +27,14 @@ export function UserInfo() {
     toggleEditUserInfo,
     toggleImageModal,
     isImageModal,
-  } = useContext(UserContext);
+  } = useContext(UIContext);
 
-  //gets the logged in user info from the local storage
+  //gets the logged in user id from the local storage
   const {
     user: { id },
   } = JSON.parse(localStorage.getItem("sb-jmfwsnwrjdahhxvtvqgq-auth-token"));
 
-  //fetch the users personal data
+  //fetch the users information on mount
   const { status, data, refetch, error } = useQuery({
     queryKey: ["userinfo"],
     queryFn: () => getUsersInfo(id),
@@ -52,8 +53,9 @@ export function UserInfo() {
 
   return (
     <>
-      {status === "pending" ? <LoadingUsersInfo /> : null}
-      {status === "success" && !isEditingUserInfo ? (
+      {status === "pending" || isLoading ? <LoadingUsersInfo /> : null}
+
+      {status === "success" && !isLoading && !isEditingUserInfo ? (
         <div className=" animate-flash bg-sideColor px-4  py-5">
           <div className=" flex flex-col   items-center justify-between space-y-2 ">
             <ProfilePicture
@@ -92,7 +94,7 @@ export function UserInfo() {
 
           <div className="= flex items-center justify-evenly space-x-4 py-4 ">
             <ProfileNav page={"Profile"} />
-            <ProfileNav page={"Timeline"} />
+            <ProfileNav page={"Notifications"} />
             <ProfileNav page={"Explore"} />
           </div>
 
@@ -221,7 +223,7 @@ function EditUserInfo({ setIsEditing, currentImage, currentUsername }) {
     <div
       className={`  px-4  py-5  ${
         isPending
-          ? "bg-isSending animate-flasInfinite"
+          ? "animate-flasInfinite bg-isSending"
           : "animate-flash bg-sideColor "
       }`}
       onClick={(e) => e.stopPropagation()}
