@@ -1,12 +1,15 @@
-import { memo } from "react";
+import { memo, useContext } from "react";
 import { IoIosSend } from "react-icons/io";
+import { UIContext } from "./AppLayout";
 
-const PostBtn = memo(function PostBtn({
-  toggleEditUserInfo,
-  toggleCreatePost,
-  toggleMobileNav,
-  setSearchValue,
-}) {
+const PostBtn = memo(function PostBtn() {
+  const {
+    toggleEditUserInfo,
+    toggleCreatePost,
+    toggleMobileNav,
+    setSearchValue,
+  } = useContext(UIContext);
+
   function handleTogglePost(e) {
     e.stopPropagation();
     toggleCreatePost((c) => !c);

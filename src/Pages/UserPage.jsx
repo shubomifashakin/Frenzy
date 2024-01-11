@@ -31,8 +31,6 @@ function UserPage() {
     isError: userHasError,
     isFetched: userIsFetched,
     error: userError,
-    isFetching: usersIsFetching,
-    isRefetching: userIsRefetching,
   } = useQuery({
     queryKey: ["externalUsersInfo"],
     queryFn: () => getUsersInfo(userId),
@@ -53,7 +51,7 @@ function UserPage() {
   }
 
   return (
-    <Main mainRef={mainRef}>
+    <Main showPostBtn={false} mainRef={mainRef}>
       {/**one of them is fetching or loading and both have no errors */}
       {userIsLoading || loadingPosts ? <LoadingPosts /> : null}
 

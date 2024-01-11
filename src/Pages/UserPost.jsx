@@ -33,7 +33,7 @@ function UserPost() {
   });
 
   return (
-    <Main mainRef={mainRef}>
+    <Main showPostBtn={false} mainRef={mainRef}>
       {isLoading ? <LoadingPosts numOfLoaders={1} /> : null}
 
       {isFetched && !isLoading ? (
@@ -62,7 +62,7 @@ function UserPost() {
           {!loadingReplies && !replyError ? (
             <>
               {replies.map((reply, i) => (
-                <Post key={i} info={reply} />
+                <Post key={i} info={reply} isPostPage={true} />
               ))}
             </>
           ) : null}

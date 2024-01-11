@@ -32,7 +32,7 @@ export const Post = memo(function Post({ info, isPostPage, isUserPage }) {
   return (
     <div
       onClick={goToPostPage}
-      className={`relative mb-4 bg-secondaryColor  transition-all duration-300 lg:m-0 ${
+      className={`relative  bg-secondaryColor  transition-all duration-300 lg:m-0 ${
         !isPostPage ? "cursor-pointer hover:bg-secondaryColorDark" : null
       } `}
     >

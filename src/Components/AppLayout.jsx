@@ -69,13 +69,6 @@ function AppLayout() {
           isImageModal={isImageModal}
           toggleImageModal={toggleImageModal}
         />
-
-        <PostBtn
-          toggleCreatePost={toggleCreatePost}
-          toggleMobileNav={toggleMobileNav}
-          setSearchValue={setSearchValue}
-          toggleEditUserInfo={toggleEditUserInfo}
-        />
       </div>
     </UIContext.Provider>
   );
