@@ -30,9 +30,9 @@ export const Post = memo(function Post({ info, isPostPage, isUserPage }) {
   }
 
   return (
-    <div
+    <article
       onClick={goToPostPage}
-      className={`relative  bg-secondaryColor  transition-all duration-300 lg:m-0 ${
+      className={`relative  bg-secondaryColor transition-all duration-300 lg:m-0 ${
         !isPostPage ? "cursor-pointer hover:bg-secondaryColorDark" : null
       } `}
     >
@@ -52,10 +52,8 @@ export const Post = memo(function Post({ info, isPostPage, isUserPage }) {
 
       {image ? <PostImage image={image} /> : null}
 
-      {comments || comments === 0 ? (
-        <PostActivity noOfComments={comments} />
-      ) : null}
-    </div>
+      {comments >= 0 ? <PostActivity noOfComments={comments} /> : null}
+    </article>
   );
 });
 
@@ -96,46 +94,17 @@ function PostHeader({ created_at, username, userId, isUserPage }) {
 
 function HoverUserNameModal({ userId }) {
   //get the users info
-  const { isFetched, isFetching, isLoading, isRefetching, error, data } =
-    useQuery({
-      queryKey: ["externalUsersInfo"],
-      queryFn: () => getUsersInfo(userId),
-    });
-
-  //get the users posts
-  const {
-    isFetched: fetchedPosts,
-    isFetching: fetchingPosts,
-    isLoading: loadingPosts,
-    isRefetching: isRefetchingPosts,
-    error: postsError,
-    data: postsData,
-  } = useQuery({
-    queryKey: ["externalUsersPosts"],
-    queryFn: () => getPosts(userId),
+  const { isFetching, error, data } = useQuery({
+    queryKey: ["externalUsersInfo"],
+    queryFn: () => getUsersInfo(userId),
   });
 
   return (
     <>
       <div className="absolute left-full top-0 hidden h-24 min-w-52 max-w-60 animate-flash rounded-sm bg-lightBlack transition-all duration-300 hover:block hover:bg-black hover:shadow hover:shadow-black  lg:group-hover:block">
-        {(isFetching ||
-          isRefetching ||
-          isLoading ||
-          fetchingPosts ||
-          loadingPosts ||
-          isRefetchingPosts) &&
-        (!error || !postsError) ? (
-          <DotLoader />
-        ) : null}
+        {isFetching ? <DotLoader /> : null}
 
-        {isFetched &&
-        fetchedPosts &&
-        !isLoading &&
-        !loadingPosts &&
-        !isRefetching &&
-        !isRefetchingPosts &&
-        !error &&
-        !postsError ? (
+        {data && !isFetching ? (
           <div className="flex h-full w-full space-x-1 p-2 ">
             <section className="h-full rounded-full">
               <img
@@ -150,13 +119,13 @@ function HoverUserNameModal({ userId }) {
               </p>
 
               <p className="text-xs font-normal tracking-wide text-white">
-                {postsData.length} {postsData.length !== 1 ? "Posts" : "Post"}
+                {data.num_posts} {data.num_posts !== 1 ? "Posts" : "Post"}
               </p>
             </section>
           </div>
         ) : null}
 
-        {error || postsError || null}
+        {error || null}
       </div>
     </>
   );

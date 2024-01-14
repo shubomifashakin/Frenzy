@@ -34,62 +34,42 @@ export function UserInfo() {
     user: { id },
   } = JSON.parse(localStorage.getItem("sb-jmfwsnwrjdahhxvtvqgq-auth-token"));
 
-  //fetch the users information on mount
-  const { status, data, refetch, error } = useQuery({
+  //fetches the users information on mount
+  const {
+    status,
+    data: userInfo,
+    refetch,
+    error,
+  } = useQuery({
     queryKey: ["userinfo"],
     queryFn: () => getUsersInfo(id),
   });
 
-  //fetches the users posts on mount
-  const {
-    data: postsData,
-    refetch: refetchPosts,
-    error: postsErr,
-    isLoading,
-  } = useQuery({
-    queryKey: ["usersPosts"],
-    queryFn: () => getPosts(id),
-  });
+  function refetchBoth() {
+    refetch();
+    refetchPosts();
+  }
 
   return (
     <>
-      {status === "pending" || isLoading ? <LoadingUsersInfo /> : null}
+      {status === "pending" ? <LoadingUsersInfo /> : null}
 
-      {status === "success" && !isLoading && !isEditingUserInfo ? (
-        <div className=" animate-flash bg-sideColor px-4  py-5">
+      {status === "success" && !isEditingUserInfo ? (
+        <div className="animate-flash bg-sideColor px-4  py-5">
           <div className=" flex flex-col   items-center justify-between space-y-2 ">
             <ProfilePicture
-              avatar={data.avatar}
+              avatar={userInfo.avatar}
               toggleImageModal={toggleImageModal}
               isImageModal={isImageModal}
             />
 
             <UserName
-              username={data.username}
+              username={userInfo.username}
               toggleEditUserInfo={toggleEditUserInfo}
               isEditingUserInfo={isEditingUserInfo}
             />
 
-            {postsData?.length >= 0 ? (
-              <p className="text-sm font-semibold">
-                {postsData.length} {postsData.length !== 1 ? "Posts" : "Post"}
-              </p>
-            ) : null}
-
-            {isLoading ? (
-              <p className="text-xs font-semibold text-orangeColor">
-                Loading Posts
-              </p>
-            ) : null}
-
-            {postsErr?.message ? (
-              <button
-                className="text-sm text-red-700 hover:text-orangeColor"
-                onClick={refetchPosts}
-              >
-                Try Again
-              </button>
-            ) : null}
+            <NumberOfPosts posts={userInfo.num_posts} />
           </div>
 
           <div className="= flex items-center justify-evenly space-x-4 py-4 ">
@@ -98,18 +78,18 @@ export function UserInfo() {
             <ProfileNav page={"Explore"} />
           </div>
 
-          <UserJoined date={data.created_at} />
+          <UserJoined date={userInfo.created_at} />
         </div>
       ) : null}
 
       {status === "error" ? (
-        <ErrorLoading retryFn={refetch} message={error.message} />
+        <ErrorLoading retryFn={refetchBoth} message={error?.message} />
       ) : null}
 
       {isEditingUserInfo && status === "success" ? (
         <EditUserInfo
-          currentUsername={data.username}
-          currentImage={data.avatar}
+          currentUsername={userInfo.username}
+          currentImage={userInfo.avatar}
           isEditing={isEditingUserInfo}
           setIsEditing={toggleEditUserInfo}
         />
@@ -117,19 +97,6 @@ export function UserInfo() {
     </>
   );
 }
-
-const ProfileNav = memo(function ProfileNav({ page }) {
-  return (
-    <NavLink
-      to={page}
-      className={
-        "font-semibold transition-all duration-500 hover:text-orangeColor"
-      }
-    >
-      {page}
-    </NavLink>
-  );
-});
 
 const ProfilePicture = memo(function ProfilePicture({
   avatar,
@@ -172,6 +139,27 @@ const UserName = memo(function UserName({ username, toggleEditUserInfo }) {
   );
 });
 
+const NumberOfPosts = memo(function NumberOfPosts({ posts }) {
+  return (
+    <p className="text-sm font-semibold">
+      {posts} {posts !== 1 ? "Posts" : "Post"}
+    </p>
+  );
+});
+
+const ProfileNav = memo(function ProfileNav({ page }) {
+  return (
+    <NavLink
+      to={page}
+      className={
+        "font-semibold transition-all duration-500 hover:text-orangeColor"
+      }
+    >
+      {page}
+    </NavLink>
+  );
+});
+
 const UserJoined = memo(function UserJoined({ date }) {
   const formattedDate = new Intl.DateTimeFormat(navigator.language, {
     dateStyle: "medium",
@@ -194,7 +182,7 @@ function EditUserInfo({ setIsEditing, currentImage, currentUsername }) {
       setAvatar(null);
       reset();
       setIsEditing(false);
-      queryClient.invalidateQueries(["userinfo"]);
+      queryClient.invalidateQueries({ queryKey: ["userinfo"] });
       toast.success("Update Successful");
     },
 
@@ -211,10 +199,12 @@ function EditUserInfo({ setIsEditing, currentImage, currentUsername }) {
 
   function updateInfo(newInfo) {
     const { username } = newInfo;
+
     if (!username && !avatar) {
       setIsEditing(false);
       return;
     }
+
     const infoToUpload = { username, avatar };
     mutate(infoToUpload);
   }
@@ -300,7 +290,7 @@ function EditImage({ setAvatar, currentImage }) {
         onChange={storeImage}
       />
 
-      <FaRegImages className="absolute left-1/2 top-1/2 translate-x-[-50%] translate-y-[-50%] cursor-pointer text-4xl font-semibold text-white transition-colors duration-300 group-hover:text-orangeColor" />
+      <FaRegImages className="pointer-events-none absolute left-1/2 top-1/2 translate-x-[-50%] translate-y-[-50%] cursor-pointer text-4xl font-semibold text-white transition-colors duration-300 group-hover:text-orangeColor" />
     </div>
   );
 }

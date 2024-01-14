@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 
@@ -7,12 +7,11 @@ import toast from "react-hot-toast";
 import { getUsersInfo, uploadPost } from "../Actions/functions";
 
 import InputError from "./InputError";
-import { Button } from "./Button";
 
 export const CreatePosts = memo(function CreatePosts({
   isCreatePost,
   toggleCreatePost,
-  dispatch,
+  addNewPostToPage,
   numberRef,
 }) {
   const [file, setFile] = useState(null);
@@ -22,14 +21,14 @@ export const CreatePosts = memo(function CreatePosts({
     user: { id },
   } = JSON.parse(localStorage.getItem("sb-jmfwsnwrjdahhxvtvqgq-auth-token"));
 
+  const { register, handleSubmit, formState, reset } = useForm();
+  const { errors } = formState;
+
   //fetch the users personal data with their id
   const { status, data } = useQuery({
     queryKey: ["userinfo"],
     queryFn: () => getUsersInfo(id),
   });
-
-  const { register, handleSubmit, formState, reset } = useForm();
-  const { errors } = formState;
 
   const queryClient = useQueryClient();
 
@@ -47,7 +46,7 @@ export const CreatePosts = memo(function CreatePosts({
       reset();
 
       //add the new post to the page
-      dispatch({ label: "newPost", payload: data });
+      addNewPostToPage({ label: "newPost", payload: data });
 
       //increment the number ref in order to exclude the new post we just sent
       numberRef.current++;
@@ -81,7 +80,6 @@ export const CreatePosts = memo(function CreatePosts({
 
   return (
     <>
-      {/**only show the modal if the user was fetched */}
       {status === "success" ? (
         <PostContainer
           isCreatePost={isCreatePost}
@@ -92,7 +90,7 @@ export const CreatePosts = memo(function CreatePosts({
             onClick={(e) => e.stopPropagation()}
             className={` flex h-full w-full flex-col text-xl font-bold   lg:hidden`}
           >
-            <div className="flex basis-[5%] items-center justify-between border-b-2  px-[2.5vw]">
+            <div className="flex basis-[5%] items-center justify-between border-b-2 px-4 py-3">
               <button onClick={cancelPost}>Cancel</button>
               <button disabled={isPending}>Post</button>
             </div>
@@ -113,7 +111,7 @@ function PostContainer({ children, isCreatePost, submitFn, handleSubmit }) {
     <form
       className={`animate-flash ease-in-out  ${
         isCreatePost ? "block" : "hidden"
-      } absolute left-0 top-0 m-[0] flex h-full w-full bg-primaryBgColor lg:hidden`}
+      } absolute left-0 top-0 z-[100] m-[0] flex h-full w-full bg-primaryBgColor lg:hidden`}
       onSubmit={handleSubmit(submitFn)}
     >
       {children}
@@ -127,7 +125,7 @@ function PostContentArea({ register, errors }) {
       <InputError>{errors}</InputError>
       <textarea
         placeholder="Tell your Frenzies something..."
-        className="mb-4 block h-full w-full resize-none overflow-y-auto bg-transparent text-base font-semibold text-black outline-none"
+        className="mb-4 block h-full w-full resize-none overflow-y-auto bg-transparent pt-2 text-base font-semibold text-black outline-none"
         {...register("content", {
           required: { value: true, message: "Post cannot be empty" },
           maxLength: {

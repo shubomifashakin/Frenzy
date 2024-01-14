@@ -156,7 +156,8 @@ const SearchBarDropdown = memo(function SearchBarDropdown({ searchValue }) {
       if (
         err.message === `AbortError: The user aborted a request.` ||
         err.message === `AbortError: signal is aborted without reason` ||
-        err.message === `AbortError: Fetch is aborted`
+        err.message === `AbortError: Fetch is aborted` ||
+        err.message === "AbortError: The operation was aborted. "
       )
         return;
 
@@ -204,7 +205,7 @@ const SearchBarDropdown = memo(function SearchBarDropdown({ searchValue }) {
 });
 
 function FoundUser({ user }) {
-  const { avatar } = user;
+  const { avatar, num_posts } = user;
   const username = user.username.replaceAll('"', "");
   return (
     <Link
@@ -218,7 +219,8 @@ function FoundUser({ user }) {
         />
       </div>
       <div>
-        <p> {username}</p>
+        <p> @{username}</p>
+        <p className="text-xs">{num_posts} Posts</p>
       </div>
     </Link>
   );

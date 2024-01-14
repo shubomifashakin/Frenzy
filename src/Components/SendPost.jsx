@@ -53,7 +53,11 @@ function Reducer(state, { label, payload }) {
   }
 }
 
-const SendPost = memo(function SendPost({ rDispatch, numberRef, isPostPage }) {
+const SendPost = memo(function SendPost({
+  addPostOrReplyToStack,
+  numberRef,
+  isPostPage,
+}) {
   const [{ isDragging, file, error: postError, chars }, dispatch] = useReducer(
     Reducer,
     initialState,
@@ -82,17 +86,19 @@ const SendPost = memo(function SendPost({ rDispatch, numberRef, isPostPage }) {
     onSuccess: function (data) {
       toast.success(`${postId ? "Reply" : "Post"} Was Sent`);
 
-      postId
-        ? queryClient.invalidateQueries({ queryKey: ["clickedPost"] })
-        : queryClient.invalidateQueries({ queryKey: ["posts"] });
+      //refetch the clicked post to show new comments
+      queryClient.invalidateQueries({ queryKey: ["clickedPost"] });
+
+      //refect the users info to update number of posts
+      queryClient.invalidateQueries({ queryKey: ["userinfo"] });
 
       //clear the  content
       contentRef.current.textContent = "";
 
       dispatch({ label: "reset" });
 
-      //add the new post or reply to the array of the page
-      rDispatch({ label: "newPost", payload: data });
+      //add the new post or reply to the page
+      addPostOrReplyToStack({ label: "newPost", payload: data });
 
       //increment the number ref in order to exclude the new post we just sent
       numberRef.current++;
@@ -242,7 +248,7 @@ const TextArea = memo(function TextArea({ contentRef, dispatch }) {
   }
 
   //when a key is pressed update our character count
-  function onKey() {
+  function onKeyPress() {
     dispatch({
       label: "chars",
       payload: contentRef.current.textContent.length,
@@ -251,7 +257,7 @@ const TextArea = memo(function TextArea({ contentRef, dispatch }) {
 
   return (
     <div
-      onKeyUp={onKey}
+      onKeyUp={onKeyPress}
       ref={contentRef}
       contentEditable={true}
       onPaste={handlePaste}

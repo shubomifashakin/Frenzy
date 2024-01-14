@@ -4,12 +4,12 @@ import { Link, useParams } from "react-router-dom";
 
 import { useSetupPage } from "../Hooks/SetUpPageHook";
 
-import { getUsersInfo, getUsersPostsInf } from "../Actions/functions";
+import { getUsersInfo, getUsersPosts } from "../Actions/functions";
 
 import { IoChevronBack } from "react-icons/io5";
 
-import { UIContext } from "../Components/AppLayout";
 import LoadingPosts from "../Components/LoadingPosts";
+import { UIContext } from "../Components/AppLayout";
 import { ErrorLoading } from "../Components/Errors";
 import { Post } from "../Components/Post";
 import Main from "../Components/Main";
@@ -19,7 +19,7 @@ function UserPage() {
   const { userId } = useParams();
 
   const { mainRef, loadingPosts, postsError, posts, isPending } = useSetupPage(
-    getUsersPostsInf,
+    getUsersPosts,
     userId,
   );
 
@@ -56,16 +56,19 @@ function UserPage() {
       {userIsLoading || loadingPosts ? <LoadingPosts /> : null}
 
       {/**data fetched from both and no errors */}
-      {userIsFetched && !postsError && !userIsLoading && !loadingPosts ? (
-        <>
+      {userIsFetched && posts && !userError ? (
+        <div className="space-y-3">
           <UsersInfo info={userData} numberOfPosts={posts.length} />
           <UsersPosts posts={posts} />
-        </>
+        </div>
       ) : null}
 
       {/**if we are fetching more posts */}
       {isPending ? (
-        <p className="absolute bottom-1 left-1/2 translate-x-[-50%] text-xs  ">
+        <p
+          className="absolute bottom-0
+         left-1/2 translate-x-[-50%] text-xs"
+        >
           Loading More
         </p>
       ) : null}

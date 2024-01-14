@@ -94,14 +94,14 @@ export async function findUsers(info) {
   return Users;
 }
 
-export async function getUsersPostsInf({ id, number = 0 }) {
+export async function getUsersPosts({ id, number = 0 }) {
   let { data: Posts, error } = await supabase
     .from("Posts")
     .select("*")
     .eq("user_id", id)
     .order("created_at", { ascending: false })
     .limit(10)
-    .range(0 + number, 9 + number);
+    .range(0, 9 + number);
 
   if (error?.message) {
     throw new Error(error.message);
@@ -116,7 +116,7 @@ export async function getAllPostsByUsers(number = 0) {
     .select("*")
     .order("created_at", { ascending: false })
     .limit(10)
-    .range(0 + number, 9 + number);
+    .range(0, 9 + number);
 
   if (error?.message) {
     throw new Error(error.message);
@@ -132,7 +132,7 @@ export async function getRepliesToPost({ id, number = 0 }) {
     .eq("post_id", id)
     .order("created_at", { ascending: false })
     .limit(10)
-    .range(0 + number, 9 + number);
+    .range(0, 9 + number);
 
   if (error?.message) {
     throw new Error(error.message);

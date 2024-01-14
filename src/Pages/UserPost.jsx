@@ -17,16 +17,21 @@ function UserPost() {
   const {
     mainRef,
     numberRef,
-    isPending,
+    isFetchingMore,
     loadingPosts: loadingReplies,
     postsError: replyError,
     posts: replies,
     refetchPosts: refetchReplies,
-    dispatch,
+    dispatch: AddLatestReplyToStack,
   } = useSetupPage(getRepliesToPost, postId);
 
   //fetches the post we clicked on mount
-  const { isLoading, error, data, isFetched, refetch } = useQuery({
+  const {
+    status,
+    error: errorFetchingPost,
+    data,
+    refetch: refetchClickedPost,
+  } = useQuery({
     queryKey: ["clickedPost"],
     queryFn: () => getSinglePost(postId),
     refetchOnWindowFocus: false,
@@ -34,14 +39,14 @@ function UserPost() {
 
   return (
     <Main showPostBtn={false} mainRef={mainRef}>
-      {isLoading ? <LoadingPosts numOfLoaders={1} /> : null}
+      {status === "pending" ? <LoadingPosts numOfLoaders={1} /> : null}
 
-      {isFetched && !isLoading ? (
+      {status === "success" ? (
         <div className="space-y-2">
-          <Post info={data} isPostPage={true} replies={replies.length} />
+          <Post info={data} isPostPage={true} replies={data.num_comments} />
 
           <SendPost
-            rDispatch={dispatch}
+            addPostOrReplyToStack={AddLatestReplyToStack}
             isPostPage={true}
             numberRef={numberRef}
           />
@@ -59,7 +64,7 @@ function UserPost() {
             </p>
           ) : null}
 
-          {!loadingReplies && !replyError ? (
+          {replies ? (
             <>
               {replies.map((reply, i) => (
                 <Post key={i} info={reply} isPostPage={true} />
@@ -71,7 +76,7 @@ function UserPost() {
             <ErrorLoading retryFn={refetchReplies} message={replyError} />
           ) : null}
 
-          {isPending ? (
+          {isFetchingMore ? (
             <p className="absolute bottom-1 left-1/2 translate-x-[-50%] text-xs  ">
               Loading More
             </p>
@@ -79,8 +84,11 @@ function UserPost() {
         </div>
       ) : null}
 
-      {error ? (
-        <ErrorLoading message={error.message} retryFn={refetch} />
+      {status === "error" ? (
+        <ErrorLoading
+          message={errorFetchingPost.message}
+          retryFn={refetchClickedPost}
+        />
       ) : null}
     </Main>
   );

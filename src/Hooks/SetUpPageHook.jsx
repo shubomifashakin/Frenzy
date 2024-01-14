@@ -1,29 +1,31 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useCallback, useEffect, useReducer, useRef } from "react";
 
 const initialState = {
   loading: false,
   error: "",
-  data: [],
+  data: null,
 };
 
 function reducer(state, { payload, label }) {
-  if (label === "isLoading") {
-    return { ...state, loading: true, error: "" };
-  }
-  if (label === "isFetched") {
-    return { loading: false, error: "", data: payload };
-  }
-  if (label === "isError") {
-    return { ...state, loading: false, error: payload };
-  }
+  switch (label) {
+    case "isLoading":
+      return { ...state, loading: true, error: "" };
 
-  if (label === "oldPosts") {
-    return { ...state, data: [...state.data, ...payload] };
-  }
+    case "isFetched":
+      return { loading: false, error: "", data: payload };
 
-  if (label === "newPost") {
-    return { ...state, data: [...payload, ...state.data] };
+    case "setFile":
+      return { ...state, isDragging: false, file: payload };
+
+    case "isError":
+      return { ...state, loading: false, error: payload };
+
+    case "oldPosts":
+      return { ...state, data: [...payload] };
+
+    case "newPost":
+      return { ...state, data: [...payload, ...state.data] };
   }
 }
 
@@ -36,8 +38,7 @@ export function useSetupPage(fetchFn, id = null) {
     initialState,
   );
 
-  //handles fetching of posts when the user scrolls to the bottom
-  const queryClient = useQueryClient();
+  //handles the fetching of old posts or replies
   const {
     mutate,
     isPending,
@@ -46,12 +47,12 @@ export function useSetupPage(fetchFn, id = null) {
     mutationFn: fetchFn,
 
     onSuccess: (data) => {
-      queryClient.invalidateQueries(["allPosts"]);
-
-      //only increment the ref if the scroll actually returned more oold posts & we were scrolling down
+      //only increment the ref if the scroll actually returned more old posts & we were scrolling down
       if (id ? data.length > 0 : data.Posts.length > 0 && data?.number) {
         //add the newly fetched posts to the data
         dispatch({ label: "oldPosts", payload: id ? data : data.Posts });
+
+        //increment the ref
         numberRef.current += 10;
       }
     },
@@ -80,7 +81,7 @@ export function useSetupPage(fetchFn, id = null) {
   );
 
   //adds a scroll event listener on mount,
-  //if the user scrolls to the last post fetch more
+  //if the user scrolls to the last post/reply fetch more using the mutation fuction we defined above
   useEffect(
     function () {
       const element = mainRef.current;
@@ -104,13 +105,13 @@ export function useSetupPage(fetchFn, id = null) {
 
   return {
     mainRef,
+    numberRef,
     dispatch,
     loadingPosts: loading,
     postsError: error,
     posts,
-    numberRef,
-    isPending,
-    mutationError: isError,
+    isFetchingMore: isPending,
+    fetcMoreError: isError,
     refetchPosts: fetchPosts,
   };
 }
