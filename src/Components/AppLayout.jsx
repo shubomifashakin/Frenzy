@@ -2,8 +2,6 @@ import { createContext, useState } from "react";
 import { Outlet } from "react-router-dom";
 
 import Navbar from "./Navbar";
-import PostBtn from "./PostBtn";
-import CreatePosts from "./CreatePosts";
 import Sidebars from "./Sidebars";
 import { UserInfo } from "./UserInfo";
 

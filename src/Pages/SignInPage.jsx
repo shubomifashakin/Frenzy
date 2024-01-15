@@ -62,7 +62,7 @@ function LogIn() {
   const { mutate, isPending } = useMutation({
     mutationFn: logInUser,
     onSuccess: () => {
-      navigate(`profile`);
+      navigate(`explore`);
     },
 
     onError: (errors) => {

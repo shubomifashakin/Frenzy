@@ -9,9 +9,9 @@ export const Button = memo(function Button({
   return (
     <button
       disabled={isPending}
-      className={` rounded-sm bg-secondaryColor ${
-        size === "medium" ? "p-3" : ""
-      } ${size === "small" ? "px-2 py-1 " : ""} 
+      className={` rounded-sm bg-sideColor ${size === "medium" ? "p-3" : ""} ${
+        size === "small" ? "px-2 py-1 " : ""
+      } 
       
       ${
         size === "xs"

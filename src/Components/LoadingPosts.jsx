@@ -12,7 +12,7 @@ export default LoadingPosts;
 
 function Post() {
   return (
-    <div className=" bg-secondaryColor ">
+    <div className=" bg-sideColor ">
       <PostHeader />
 
       <PostContent />

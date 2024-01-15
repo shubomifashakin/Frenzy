@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useReducer, useRef } from "react";
 
 const initialState = {
@@ -39,6 +39,7 @@ export function useSetupPage(fetchFn, id = null) {
   );
 
   //handles the fetching of old posts or replies
+  const queryClient = useQueryClient();
   const {
     mutate,
     isPending,
@@ -51,6 +52,9 @@ export function useSetupPage(fetchFn, id = null) {
       if (id ? data.length > 0 : data.Posts.length > 0 && data?.number) {
         //add the newly fetched posts to the data
         dispatch({ label: "oldPosts", payload: id ? data : data.Posts });
+
+        //refetch the loged in users info
+        queryClient.invalidateQueries({ queryKey: ["userinfo"] });
 
         //increment the ref
         numberRef.current += 10;

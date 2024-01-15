@@ -38,7 +38,7 @@ function UserPost() {
   });
 
   return (
-    <Main showPostBtn={false} mainRef={mainRef}>
+    <Main mainRef={mainRef}>
       {status === "pending" ? <LoadingPosts numOfLoaders={1} /> : null}
 
       {status === "success" ? (

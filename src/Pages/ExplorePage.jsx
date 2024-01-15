@@ -26,7 +26,7 @@ function ExplorePage() {
       numberRef={numberRef}
       addLatestPostToStack={addLatestPostToStack}
     >
-      {loadingPosts ? <LoadingPosts /> : null}
+      {loadingPosts ? <LoadingPosts numOfLoaders={4} /> : null}
 
       {posts ? (
         <>

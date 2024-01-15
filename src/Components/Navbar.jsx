@@ -1,9 +1,8 @@
-import { memo, useContext, useEffect, useMemo, useState } from "react";
+import { memo, useContext, useEffect, useMemo } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import toast from "react-hot-toast";
-import { FaCaretLeft, FaCaretRight } from "react-icons/fa6";
 
 import { findUsers, logOutUser } from "../Actions/functions";
 
@@ -15,13 +14,12 @@ function Navbar() {
     setSearchValue([]);
   }
 
-  const { mobileNav, toggleMobileNav, setSearchValue, searchValue } =
-    useContext(UIContext);
+  const { mobileNav, setSearchValue, searchValue } = useContext(UIContext);
 
   return (
     <nav
       onClick={CloseSearch}
-      className={`absolute left-0 top-0  z-50 col-span-full row-span-1 flex h-full w-9/12 flex-col space-y-4 border-b border-tertiaryColor bg-primaryBgColor px-2 py-4 transition-all duration-500 ease-in-out md:p-5 lg:relative lg:left-0 lg:z-auto lg:grid lg:w-full lg:grid-cols-[1fr_1.5fr_1fr] lg:items-center lg:justify-start lg:space-y-2  lg:px-5 lg:py-0 ${
+      className={` left-0 top-0  col-span-full row-span-1 hidden  h-full w-9/12 space-y-4 border-b border-tertiaryColor bg-primaryBgColor transition-all duration-500 ease-in-out md:p-5 lg:relative lg:left-0 lg:z-auto lg:grid lg:w-full lg:grid-cols-[1fr_1.5fr_1fr] lg:items-center lg:justify-start lg:space-y-2  lg:px-5 lg:py-0 ${
         mobileNav ? "left-0" : "left-[-75%]"
       }`}
     >
@@ -29,39 +27,11 @@ function Navbar() {
       <NavItem path={"profile"} logo={true}>
         Frenzy
       </NavItem>
-      <NavItem path={"profile"}>Profile</NavItem>
-      <NavItem path={"notifications"}>Notifications</NavItem>
-      <NavItem path={"explore"}>Explore</NavItem>
+
       <LogOutBtn />
-      {/* <Timer /> */}
-      <MobileNavTrigger
-        mobileNav={mobileNav}
-        toggleMobileNav={toggleMobileNav}
-      />
     </nav>
   );
 }
-
-const MobileNavTrigger = memo(function MobileNavTrigger({
-  mobileNav,
-  toggleMobileNav,
-}) {
-  return (
-    <div
-      onClick={(e) => {
-        e.stopPropagation();
-        toggleMobileNav((c) => !c);
-      }}
-      className="absolute left-full top-1/2 m-auto  flex h-20 w-10 translate-y-[-50%] cursor-pointer items-center justify-start rounded-br-full rounded-tr-full bg-orangeLight text-left sm:h-24 sm:w-12  lg:hidden"
-    >
-      {mobileNav ? (
-        <FaCaretLeft display={"inline"} fontSize={"2rem"} />
-      ) : (
-        <FaCaretRight display={"inline"} fontSize={"2rem"} />
-      )}
-    </div>
-  );
-});
 
 const LogOutBtn = memo(function LogOutBtn() {
   const navigate = useNavigate();

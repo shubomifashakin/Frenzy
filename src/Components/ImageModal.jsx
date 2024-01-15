@@ -8,7 +8,7 @@ function ImageModal({ isImageModal, toggleImageModal }) {
     <div
       className={`animate-flash ease-in-out  ${
         isImageModal ? "block" : "hidden"
-      } absolute left-0 top-0 z-[100] flex h-full w-full items-center justify-center bg-lightBlack  shadow-sm shadow-secondaryColor backdrop-blur-[2px] lg:bg-transparent`}
+      } absolute left-0 top-0 z-[100] flex h-full w-full items-center justify-center bg-lightBlack  shadow-sm shadow-sideColor backdrop-blur-[2px] lg:bg-transparent`}
     >
       <div className="flex h-full items-center justify-center px-2 md:px-6 lg:h-[90%] lg:w-full lg:px-0">
         <img

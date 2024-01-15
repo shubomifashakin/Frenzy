@@ -23,8 +23,6 @@ export default {
 
       colors: {
         primaryBgColor: "#FFFFE8",
-        secondaryColor: "#f5cea5",
-        secondaryColorDark: "#d6b490",
         tertiaryColor: "#d3d3d3",
 
         sideColor: "#ece0d2",

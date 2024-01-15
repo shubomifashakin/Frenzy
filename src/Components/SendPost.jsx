@@ -14,8 +14,8 @@ import { getUsersInfo, uploadPost, uploadReply } from "../Actions/functions";
 import { FaRegImages } from "react-icons/fa6";
 import toast from "react-hot-toast";
 
-import { UIContext } from "./AppLayout";
 import LoadingPosts from "./LoadingPosts";
+import { UIContext } from "./AppLayout";
 import { ErrorLoading } from "./Errors";
 
 const sendLabel = "Talk to your frenzies..";
@@ -194,8 +194,8 @@ const SendPost = memo(function SendPost({
           onDragOver={handleDragOver}
           onDragLeave={hanldeDragLeave}
           onDrop={handleDrop}
-          className={`relative ${isPostPage ? "block" : "hidden"} w-full ${
-            isDragging || isPending ? "bg-isSending" : "bg-secondaryColor"
+          className={`relative  ${isPostPage ? "block" : "hidden"} w-full ${
+            isDragging || isPending ? "bg-orangeLight" : "bg-sideColor"
           } ${
             isPending && "animate-flasInfinite"
           } space-y-2 border-none  px-4 py-4 transition-colors duration-300 lg:block`}

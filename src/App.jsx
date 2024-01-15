@@ -11,7 +11,9 @@ import ProtectedRoute from "./Components/ProtectedRoute";
 
 import SignInPage from "./Pages/SignInPage";
 import Fallback from "./Components/Fallback";
+
 const NotificationsPage = lazy(() => import("./Pages/NotificationsPage"));
+const Search = lazy(() => import("./Pages/Search"));
 const ProfilePage = lazy(() => import("./Pages/ProfilePage"));
 const ExplorePage = lazy(() => import("./Pages/ExplorePage"));
 const UserPage = lazy(() => import("./Pages/UserPage"));
@@ -39,6 +41,7 @@ function App() {
               <Route path="notifications" element={<NotificationsPage />} />
               <Route path="profile" element={<ProfilePage />} />
               <Route path="explore" element={<ExplorePage />} />
+              <Route path="search" element={<Search />} />
               <Route path="/:userId" element={<UserPage />} />
               <Route path="post/:postId" element={<UserPost />} />
             </Route>

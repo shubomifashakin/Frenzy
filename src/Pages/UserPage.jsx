@@ -51,7 +51,7 @@ function UserPage() {
   }
 
   return (
-    <Main showPostBtn={false} mainRef={mainRef}>
+    <Main mainRef={mainRef}>
       {/**one of them is fetching or loading and both have no errors */}
       {userIsLoading || loadingPosts ? <LoadingPosts /> : null}
 

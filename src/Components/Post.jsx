@@ -7,7 +7,7 @@ import { LiaComments } from "react-icons/lia";
 import DotLoader from "./DotLoader";
 import { UIContext } from "./AppLayout";
 
-import { getPosts, getUsersInfo } from "../Actions/functions";
+import { getUsersInfo } from "../Actions/functions";
 
 export const Post = memo(function Post({ info, isPostPage, isUserPage }) {
   const {
@@ -32,8 +32,8 @@ export const Post = memo(function Post({ info, isPostPage, isUserPage }) {
   return (
     <article
       onClick={goToPostPage}
-      className={`relative  bg-secondaryColor transition-all duration-300 lg:m-0 ${
-        !isPostPage ? "cursor-pointer hover:bg-secondaryColorDark" : null
+      className={`relative bg-sideColor transition-all duration-300 lg:m-0  ${
+        !isPostPage ? "cursor-pointer hover:bg-orangeLight" : null
       } `}
     >
       <PostHeader

@@ -50,7 +50,11 @@ function ProfilePage() {
       numberRef={numberRef}
       addLatestPostToStack={addLatestPostToStack}
     >
-      {loadingPosts || userInfoStatus === "pending" ? <LoadingPosts /> : null}
+      {(loadingPosts || userInfoStatus === "pending") &&
+      !userError &&
+      !postsError ? (
+        <LoadingPosts />
+      ) : null}
 
       {posts && userInfoStatus === "success" && !postsError ? (
         <>
