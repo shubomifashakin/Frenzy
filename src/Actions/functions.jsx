@@ -3,10 +3,7 @@ import { supabase } from "../Supabase/supabase";
 import Compressor from "compressorjs";
 
 export async function logInUser(userInfo) {
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.signInWithPassword(userInfo);
+  const { error } = await supabase.auth.signInWithPassword(userInfo);
 
   //if there was an error logging in, show it
   if (error) {
@@ -21,7 +18,7 @@ export async function signUpUser(userInfo) {
   const trimedUsername = trimWord(userName);
 
   //create the user with these details
-  const { data: createdUser, error: createError } = await supabase.auth.signUp({
+  const { error: createError } = await supabase.auth.signUp({
     email: trimmedEmail,
     password,
     options: { data: { userName: trimedUsername } },
@@ -383,7 +380,7 @@ export async function updateUserInfo(newInfo) {
 
   //if the user is only updating their username
   if (!avatarFile && username) {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("UsersInfo")
       .update({ username: `"${trimWord(username)}"` })
       .eq("id", id);
@@ -400,7 +397,7 @@ export async function setBackToCurrentInfo(username, avatarlink) {
     user: { id },
   } = JSON.parse(localStorage.getItem("sb-jmfwsnwrjdahhxvtvqgq-auth-token"));
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("UsersInfo")
     .update({ username, avatar: avatarlink })
     .eq("id", id);

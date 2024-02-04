@@ -4,7 +4,9 @@ import { useCallback, useEffect, useReducer, useRef } from "react";
 const initialState = {
   loading: false,
   error: "",
-  data: null,
+  posts: null,
+  file: "",
+  isDragging: false,
 };
 
 function reducer(state, { payload, label }) {
@@ -12,8 +14,8 @@ function reducer(state, { payload, label }) {
     case "isLoading":
       return { ...state, loading: true, error: "" };
 
-    case "isFetched":
-      return { loading: false, error: "", data: payload };
+    case "isFetchedPosts":
+      return { loading: false, error: "", posts: payload };
 
     case "setFile":
       return { ...state, isDragging: false, file: payload };
@@ -21,11 +23,8 @@ function reducer(state, { payload, label }) {
     case "isError":
       return { ...state, loading: false, error: payload };
 
-    case "oldPosts":
-      return { ...state, data: [...payload] };
-
-    case "newPost":
-      return { ...state, data: [...payload, ...state.data] };
+    case "refetchedPosts":
+      return { ...state, posts: [...payload] };
   }
 }
 
@@ -33,7 +32,7 @@ export function useSetupPage(fetchFn, id = null) {
   const mainRef = useRef(null);
   const numberRef = useRef(10);
 
-  const [{ loading, error, data: posts }, dispatch] = useReducer(
+  const [{ loading, error, posts }, dispatch] = useReducer(
     reducer,
     initialState,
   );
@@ -49,9 +48,9 @@ export function useSetupPage(fetchFn, id = null) {
 
     onSuccess: (data) => {
       //only increment the ref if the scroll actually returned more old posts & we were scrolling down
-      if (id ? data.length > 0 : data.Posts.length > 0 && data?.number) {
+      if (data?.length > 0 || (data?.Posts.length > 0 && data?.number)) {
         //add the newly fetched posts to the data
-        dispatch({ label: "oldPosts", payload: id ? data : data.Posts });
+        dispatch({ label: "refetchedPosts", payload: id ? data : data.Posts });
 
         //refetch the loged in users info
         queryClient.invalidateQueries({ queryKey: ["userinfo"] });
@@ -68,7 +67,7 @@ export function useSetupPage(fetchFn, id = null) {
       try {
         dispatch({ label: "isLoading" });
         const data = id ? await fetchFn({ id }) : await fetchFn();
-        dispatch({ label: "isFetched", payload: id ? data : data.Posts });
+        dispatch({ label: "isFetchedPosts", payload: id ? data : data.Posts });
       } catch (err) {
         dispatch({ label: "isError", payload: err.message });
       }
@@ -89,6 +88,7 @@ export function useSetupPage(fetchFn, id = null) {
   useEffect(
     function () {
       const element = mainRef.current;
+
       function scrollFn() {
         if (
           element.scrollTop === element.scrollHeight - element.clientHeight &&

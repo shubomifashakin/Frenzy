@@ -8,12 +8,13 @@ function Main({ mainRef, children, addLatestPostToStack, numberRef }) {
   const { isCreatePost, toggleCreatePost } = useContext(UIContext);
 
   return (
-    <main
-      ref={mainRef}
-      className="relative col-start-2 flex  h-full flex-col overflow-auto border-tertiaryColor lg:border-x"
-    >
+    <main className="relative col-start-2 flex  h-full flex-col overflow-auto border-tertiaryColor lg:border-x">
       <TopMobileNav />
-      <div className="relative w-full  basis-[90%] overflow-auto p-4 lg:mt-0 lg:basis-full lg:p-5">
+
+      <div
+        ref={mainRef}
+        className="relative w-full  basis-[90%] overflow-auto p-4 lg:mt-0 lg:basis-full lg:p-5"
+      >
         {children}
       </div>
 
