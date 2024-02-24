@@ -25,6 +25,9 @@ function reducer(state, { payload, label }) {
 
     case "refetchedPosts":
       return { ...state, posts: [...payload] };
+
+    case "newPost":
+      return { ...state, posts: [...payload, ...state.posts] };
   }
 }
 
